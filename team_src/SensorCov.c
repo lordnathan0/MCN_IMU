@@ -6,11 +6,27 @@
  */
 
 #include "all.h"
+#include <string.h>
+#include "mpu6050dmp.h"
+#include "mpu6050.h"
+#include "spi.h"
+unsigned int fifoCount;
 
+int ax, ay, az, gx, gy, gz;
+
+float ypr[3];
+Quaternion q;
+VectorInt16 aa;
+VectorFloat gravity;
+VectorInt16 aaReal;
 
 ops_struct ops_temp;
 data_struct data_temp;
-stopwatch_struct* conv_watch;
+
+extern unsigned char fifoBuffer[128];
+
+#define 	packetSize 		42
+#define		MPUINT()		GpioDataRegs.GPADAT.bit.GPIO23
 
 void SensorCov()
 {
@@ -28,20 +44,40 @@ void SensorCov()
 void SensorCovInit()
 {
 	//todo USER: SensorCovInit()
-	//CONFIG ADC
-	adcinit();
 
-	//CONFIG GP_BUTTON
-	ConfigGPButton();
+	//set up mpu int pin
+	EALLOW;
+	GpioCtrlRegs.GPAMUX2.bit.GPIO23 = 0;         // GPIO
+	GpioCtrlRegs.GPADIR.bit.GPIO23 = 0;          // input
+	GpioCtrlRegs.GPAQSEL2.bit.GPIO23 = 0;        //Synch to SYSCLKOUT only
+	GpioCtrlRegs.GPAPUD.bit.GPIO23 = 1; 		//disable pull up
+	EDIS;
 
-	//CONFIG LEDS
-	//led 0
-	ConfigLED0();
-	//led 1
-	ConfigLED1();
-	//CONFIG 12V SWITCH
-	Config12V();
-	conv_watch = StartStopWatch(4);
+	EALLOW;
+	GpioCtrlRegs.GPAMUX1.bit.GPIO15 = 0;         // GPIO
+	GpioCtrlRegs.GPADIR.bit.GPIO15 = 1;          // input
+	GpioCtrlRegs.GPAQSEL1.bit.GPIO15 = 0;        //Synch to SYSCLKOUT only
+	GpioCtrlRegs.GPAPUD.bit.GPIO15 = 1; 		//disable pull up
+	EDIS;
+
+	spi_fifo_init();
+	SpiGpio();
+//	I2CA_Init();
+	int id = getDeviceID();
+	//mpu_setup();
+	//I2C_writeByte(0x68, 0x23, 0); // no fifo enable
+	char status = dmpInitialize();
+
+    setFullScaleGyroRange(MPU6050_GYRO_FS_250);
+    setFullScaleAccelRange(MPU6050_ACCEL_FS_16);
+
+//    setXGyroOffset(-3500);
+//    setYGyroOffset(-365);
+//    setZGyroOffset(210);
+//    setZAccelOffset(914);
+//    setXAccelOffset(-980);
+//    setYAccelOffset(630);
+
 }
 
 
@@ -54,61 +90,37 @@ void LatchStruct()
 
 void SensorCovMeasure()
 {
-	StopWatchRestart(conv_watch);
 
 	//todo USER: Sensor Conversion
 	//update data_temp and ops_temp
 	//use stopwatch to catch timeouts
 	//waiting should poll isStopWatchComplete() to catch timeout and throw StopWatchError
+	unsigned char mpuIntStatus = getIntStatus();
+	fifoCount = getFIFOCount();
 
-	readADC();
-	data_temp.adc = A0RESULT;
-
-	data_temp.gp_button = READGPBUTTON();
-
-	if (data_temp.gp_button == 0) 			//if pushed cause stopwatch
+	getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+	if(fifoCount >= packetSize)
 	{
-		SETLED0();
-		int i = 0;
-		while (i < 100)
+		if (fifoCount == 1024)
 		{
-			i++;
+			// reset so we can continue cleanly
+			resetFIFO();
+		}
+		else if (mpuIntStatus & 1)
+		{
+			// wait for correct available data length, should be a VERY short wait
+			while (fifoCount < packetSize) fifoCount = getFIFOCount();
+
+			getFIFOBytes(fifoBuffer, packetSize);
+            dmpGetQuaternion(&q, fifoBuffer);
+            dmpGetAccel(&aa, fifoBuffer);
+            dmpGetGravity(&gravity, &q);
+            dmpGetLinearAccel(&aaReal, &aa, &gravity);
+            dmpGetYawPitchRoll(ypr, &q, &gravity);
+			//probably not necessary
+			//fifoCount -= packetSize;
 		}
 	}
-	else
-	{
-		CLEARLED0();
-	}
-
-	if (data_temp.adc > 2000)
-	{
-		SETLED1();
-	}
-	else
-	{
-		CLEARLED1();
-	}
-
-	//exit and stopwatch error if timeout
-	if (isStopWatchComplete(conv_watch) == 1)
-	{
-		ops_temp.Flags.bit.cov_error = 1;
-	}
-	else
-	{
-		ops_temp.Flags.bit.cov_error = 0;
-	}
-
-
-	if (ops_temp.Flags.all != 0)
-	{
-		SET12V();
-	}
-	else
-	{
-		CLEAR12V();
-	}
-
 
 }
 
@@ -139,8 +151,5 @@ void UpdateStruct()
 void SensorCovDeInit()
 {
 	//todo USER: SensorCovDeInit()
-	StopStopWatch(conv_watch);
-	CLEARLED0();
-	CLEARLED1();
-	CLEAR12V();
+
 }

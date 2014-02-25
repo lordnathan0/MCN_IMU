@@ -18,6 +18,9 @@
 #define OPS_ID_STATE 			0
 #define OPS_ID_STOPWATCHERROR 	1
 
+#define SENTENCE_SIZE	100
+#define BUFFER_SIZE		5
+
 typedef struct CHANGE_OPS
 {
 	char State : 1;
@@ -44,6 +47,7 @@ typedef struct OPERATIONS
   	long 			all;
   	change_struct 	bit;
   }					Change;
+  stopwatch_struct* GPS_stopwatch;
 } ops_struct;
 
 

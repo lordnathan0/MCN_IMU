@@ -2,3 +2,5 @@
 .launches*/
 [Rr]elease*/
 !*.lib
+*.orig
+

@@ -679,20 +679,8 @@ __interrupt void I2CINT2A_ISR(void)     // I2C-A
 // PIE Group 9 - MUXed into CPU INT9
 // -----------------------------------------------------------
 
-// INT9.1
-__interrupt void SCIRXINTA_ISR(void)     // SCI-A
-{
-  // Insert ISR Code here
 
-  // To receive more interrupts from this PIE group, acknowledge this interrupt
-  // PieCtrlRegs.PIEACK.all = PIEACK_GROUP9;
 
-  // Next two lines for debug only to halt the processor here
-  // Remove after inserting ISR Code
-  __asm ("      ESTOP0");
-  for(;;);
-
-}
 
 // INT9.2
 __interrupt void SCITXINTA_ISR(void)     // SCI-A

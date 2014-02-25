@@ -16,7 +16,7 @@ char isPowerOn();
 void PowerDownISRSetup();
 void StartPowerDownInt();
 
-#define COMPVOLTAGE 	1.95
+#define COMPVOLTAGE 	1.9
 #define VDDA			3.0
 #define VSSA			0.0
 

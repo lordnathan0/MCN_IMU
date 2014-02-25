@@ -11,7 +11,11 @@ void PowerDown()
 {
 	UserPowerDown();
 	NodePowerDown();
-	while(isPowerOn() == 0) {}
+	while(isPowerOn() == 0)
+	{
+		TOGGLELED1();
+		TOGGLELED0();
+	}
 	Restart();
 }
 
@@ -71,7 +75,7 @@ void StartPowerDownInt()
 // INT2.1
 __interrupt void EPWM1_TZINT_ISR(void)    // EPWM-1
 {
-
+	//PowerDown();
 	ops.Change.bit.State = 1;
 	// To receive more interrupts from this PIE group, acknowledge this interrupt
 	ops.State = STATE_POWER_DOWN;

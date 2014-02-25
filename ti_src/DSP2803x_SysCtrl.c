@@ -63,6 +63,7 @@ void InitSysCtrl(void)
    //XtalOscSel();
    //todo Nathan: switch to external
         IntOsc1Sel();
+   //     XtalOscSel();
    // Initialize the PLL control: PLLCR and CLKINDIV
    // DSP28_PLLCR and DSP28_CLKINDIV are defined in DSP2803x_Examples.h
    InitPll(DSP28_PLLCR,DSP28_DIVSEL);

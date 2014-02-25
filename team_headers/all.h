@@ -25,6 +25,8 @@
 #include "gpio.h"
 #include "DSP2803x_GlobalPrototypes.h"
 #include "Flash2803x_API_Library.h"
+#include "GPS.h"
+#include "i2c.h"
 
 extern ops_struct ops;
 extern data_struct data;
