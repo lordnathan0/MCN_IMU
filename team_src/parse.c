@@ -204,6 +204,7 @@ int nmea_parse_GPGGA(const char *buff, int buff_sz, nmeaGPGGA *pack)
         return 0;
     }
 
+
     return 1;
 }
 
@@ -366,7 +367,6 @@ int nmea_parse_GPVTG(const char *buff, int buff_sz, nmeaGPVTG *pack)
 void nmea_GPGGA2info(nmeaGPGGA *pack, nmeaINFO *info)
 {
 
-
     info->utc.hour = pack->utc.hour;
     info->utc.min = pack->utc.min;
     info->utc.sec = pack->utc.sec;
@@ -374,8 +374,18 @@ void nmea_GPGGA2info(nmeaGPGGA *pack, nmeaINFO *info)
     info->sig = pack->sig;
     info->HDOP = pack->HDOP;
     info->elv = pack->elv;
+
+    info->lat_degree = pack->lat/100;
+    info->lat_min = pack->lat - info->lat_degree*100;
+    info->lat = info->lat_degree + info->lat_min/60;
+
+    info->long_degree = pack->lon/100;
+    info->long_min = pack->lon - info->long_degree*100;
+    info->lon = info->long_degree + info->long_min/60;
+
     info->lat = ((pack->ns == 'N')?pack->lat:-(pack->lat));
     info->lon = ((pack->ew == 'E')?pack->lon:-(pack->lon));
+
     info->smask |= GPGGA;
 }
 

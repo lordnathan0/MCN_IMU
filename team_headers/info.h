@@ -92,8 +92,12 @@ typedef struct _nmeaINFO
     double  HDOP;       /**< Horizontal Dilution Of Precision */
     double  VDOP;       /**< Vertical Dilution Of Precision */
 
-    double  lat;        /**< Latitude in NDEG - +/-[degree][min].[sec/60] */
-    double  lon;        /**< Longitude in NDEG - +/-[degree][min].[sec/60] */
+    double  lat;        /**< Latitude in full degrees */
+    double 	lat_min;		/**< Latitude mins */
+    int		lat_degree; /**< Latitude degrees -/+ */
+    double  lon;        /**< Longitude in full degrees */
+    double 	long_min;	/**< Longitude mins */
+    int		long_degree; /**< Longitude degrees -/+ */
     double  elv;        /**< Antenna altitude above/below mean sea level (geoid) in meters */
     double  speed;      /**< Speed over the ground in miles/hour */
     double  direction;  /**< Track angle in degrees True */

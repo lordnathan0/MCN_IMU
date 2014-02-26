@@ -36,12 +36,23 @@ void ClearMailBoxes();
 #define HEARTBEAT_ID 	0x0
 #define HEARTBEAT_BOX 	1
 
-#define ADC_ID 			0x2
-#define ADC_BOX 		2
-#define ADC_TRS			TRS2
+#define CURRENT_TIME_ID 	0x10e
+#define CURRENT_TIME_BOX	3
 
-#define GP_BUTTON_ID 	0x3
-#define GP_BUTTON_BOX 	3
-#define GP_BUTTON_TRS	TRS3
+#define ALT_ACCR_ID			0x10d
+#define ALT_ACCR_BOX		4
+
+#define LAT_VAL_ID			0x10b
+#define LAT_VAL_BOX			5
+
+#define LONG_ID				0x10c
+#define LONG_BOX			6
+
+#define ACCEL_ID			0x10F
+#define ACCEL_BOX			7
+
+#define GYRO_ID				0x110
+#define GYRO_BOX			8
+
 
 #endif /* CAN_H_ */

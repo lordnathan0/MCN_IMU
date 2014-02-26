@@ -9,6 +9,7 @@
 unsigned int mask;
 stopwatch_struct* can_watch;
 struct ECAN_REGS ECanaShadow;
+extern sci_struct GPS;
 
 void CANSetup()
 {
@@ -53,25 +54,59 @@ void CANSetup()
 	ECanaShadow.CANME.bit.ME1 = 1;			//enable
 
 
-	//SOMETHING ODD ABOUT ORDER HERE AND RTR BIT...
-
-	//adc TRANSMIT
-	ECanaMboxes.MBOX2.MSGID.bit.IDE = 0; 	//standard id
-	ECanaMboxes.MBOX2.MSGID.bit.AME = 0; 	// all bit must match
-	ECanaMboxes.MBOX2.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
-	ECanaMboxes.MBOX2.MSGCTRL.bit.DLC = 8;
-	ECanaMboxes.MBOX2.MSGID.bit.STDMSGID = ADC_ID;
-	ECanaShadow.CANMD.bit.MD2 = 0; 			//transmit
-	ECanaShadow.CANME.bit.ME2 = 1;			//enable
-
-	//gp_button TRANSMIT
+	//Current Time TRANSMIT
 	ECanaMboxes.MBOX3.MSGID.bit.IDE = 0; 	//standard id
 	ECanaMboxes.MBOX3.MSGID.bit.AME = 0; 	// all bit must match
 	ECanaMboxes.MBOX3.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
-	ECanaMboxes.MBOX3.MSGCTRL.bit.DLC = 8;
-	ECanaMboxes.MBOX3.MSGID.bit.STDMSGID = GP_BUTTON_ID;
+	ECanaMboxes.MBOX3.MSGCTRL.bit.DLC = 7;
+	ECanaMboxes.MBOX3.MSGID.bit.STDMSGID = CURRENT_TIME_ID;
 	ECanaShadow.CANMD.bit.MD3 = 0; 			//transmit
 	ECanaShadow.CANME.bit.ME3 = 1;			//enable
+
+	//Alt and Accuracy TRANSMIT
+	ECanaMboxes.MBOX4.MSGID.bit.IDE = 0; 	//standard id
+	ECanaMboxes.MBOX4.MSGID.bit.AME = 0; 	// all bit must match
+	ECanaMboxes.MBOX4.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
+	ECanaMboxes.MBOX4.MSGCTRL.bit.DLC = 8;
+	ECanaMboxes.MBOX4.MSGID.bit.STDMSGID = ALT_ACCR_ID;
+	ECanaShadow.CANMD.bit.MD4 = 0; 			//transmit
+	ECanaShadow.CANME.bit.ME4 = 1;			//enable
+
+	//Lat and Validity TRANSMIT
+	ECanaMboxes.MBOX5.MSGID.bit.IDE = 0; 	//standard id
+	ECanaMboxes.MBOX5.MSGID.bit.AME = 0; 	// all bit must match
+	ECanaMboxes.MBOX5.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
+	ECanaMboxes.MBOX5.MSGCTRL.bit.DLC = 8;
+	ECanaMboxes.MBOX5.MSGID.bit.STDMSGID = LAT_VAL_ID;
+	ECanaShadow.CANMD.bit.MD5 = 0; 			//transmit
+	ECanaShadow.CANME.bit.ME5 = 1;			//enable
+
+	//LONG TRANSMIT
+	ECanaMboxes.MBOX6.MSGID.bit.IDE = 0; 	//standard id
+	ECanaMboxes.MBOX6.MSGID.bit.AME = 0; 	// all bit must match
+	ECanaMboxes.MBOX6.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
+	ECanaMboxes.MBOX6.MSGCTRL.bit.DLC = 7;
+	ECanaMboxes.MBOX6.MSGID.bit.STDMSGID = LONG_ID;
+	ECanaShadow.CANMD.bit.MD6 = 0; 			//transmit
+	ECanaShadow.CANME.bit.ME6 = 1;			//enable
+
+	//IMU ACCEL TRANSMIT
+	ECanaMboxes.MBOX7.MSGID.bit.IDE = 0; 	//standard id
+	ECanaMboxes.MBOX7.MSGID.bit.AME = 0; 	// all bit must match
+	ECanaMboxes.MBOX7.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
+	ECanaMboxes.MBOX7.MSGCTRL.bit.DLC = 6;
+	ECanaMboxes.MBOX7.MSGID.bit.STDMSGID = ACCEL_ID;
+	ECanaShadow.CANMD.bit.MD7 = 0; 			//transmit
+	ECanaShadow.CANME.bit.ME7 = 1;			//enable
+
+	//IMU GYRO TRANSMIT
+	ECanaMboxes.MBOX8.MSGID.bit.IDE = 0; 	//standard id
+	ECanaMboxes.MBOX8.MSGID.bit.AME = 0; 	// all bit must match
+	ECanaMboxes.MBOX8.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
+	ECanaMboxes.MBOX8.MSGCTRL.bit.DLC = 6;
+	ECanaMboxes.MBOX8.MSGID.bit.STDMSGID = GYRO_ID;
+	ECanaShadow.CANMD.bit.MD8 = 0; 			//transmit
+	ECanaShadow.CANME.bit.ME8 = 1;			//enable
 
 
 	ECanaRegs.CANGAM.all = ECanaShadow.CANGAM.all;
@@ -180,27 +215,78 @@ char FillCAN(unsigned int Mbox)
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
 		EDIS;
 		return 1;
-	case ADC_BOX:
+	case CURRENT_TIME_BOX:
 		EALLOW;
 		ECanaShadow.CANMC.bit.MBNR = Mbox;
 		ECanaShadow.CANMC.bit.CDR = 1;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
-		ECanaMboxes.MBOX2.MDH.all = 0;
-		ECanaMboxes.MBOX2.MDL.all = 0;
-		ECanaMboxes.MBOX2.MDL.all = data.adc;
+		ECanaMboxes.MBOX3.MDL.word.LOW_WORD = GPS.gps_info.utc.year;
+		ECanaMboxes.MBOX3.MDL.byte.BYTE2 = GPS.gps_info.utc.mon;
+		ECanaMboxes.MBOX3.MDL.byte.BYTE3 = GPS.gps_info.utc.day;
+		ECanaMboxes.MBOX3.MDH.byte.BYTE4 = GPS.gps_info.utc.hour;
+		ECanaMboxes.MBOX3.MDH.byte.BYTE5 = GPS.gps_info.utc.min;
+		ECanaMboxes.MBOX3.MDH.byte.BYTE6 = GPS.gps_info.utc.sec;
 		ECanaShadow.CANMC.bit.CDR = 0;
 		ECanaShadow.CANMC.bit.MBNR = 0;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
 		EDIS;
 		return 1;
-	case GP_BUTTON_BOX:
+	case ALT_ACCR_BOX:
 		EALLOW;
 		ECanaShadow.CANMC.bit.MBNR = Mbox;
 		ECanaShadow.CANMC.bit.CDR = 1;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
-		ECanaMboxes.MBOX3.MDH.all = 0;
-		ECanaMboxes.MBOX3.MDL.all = 0;
-		ECanaMboxes.MBOX3.MDL.all = data.gp_button;
+		ECanaMboxes.MBOX4.MDH.all = GPS.gps_info.elv;
+		ECanaMboxes.MBOX4.MDL.all = GPS.gps_info.PDOP;
+		ECanaShadow.CANMC.bit.CDR = 0;
+		ECanaShadow.CANMC.bit.MBNR = 0;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		EDIS;
+		return 1;
+	case LAT_VAL_BOX:
+		EALLOW;
+		ECanaShadow.CANMC.bit.MBNR = Mbox;
+		ECanaShadow.CANMC.bit.CDR = 1;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		ECanaMboxes.MBOX5.MDH.all = GPS.gps_info.lat;
+		ECanaMboxes.MBOX5.MDL.byte.BYTE1 = GPS.gps_info.sig;
+		ECanaShadow.CANMC.bit.CDR = 0;
+		ECanaShadow.CANMC.bit.MBNR = 0;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		EDIS;
+		return 1;
+	case LONG_BOX:
+		EALLOW;
+		ECanaShadow.CANMC.bit.MBNR = Mbox;
+		ECanaShadow.CANMC.bit.CDR = 1;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		ECanaMboxes.MBOX6.MDH.all = GPS.gps_info.lon;
+		ECanaShadow.CANMC.bit.CDR = 0;
+		ECanaShadow.CANMC.bit.MBNR = 0;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		EDIS;
+		return 1;
+	case ACCEL_BOX:
+		EALLOW;
+		ECanaShadow.CANMC.bit.MBNR = Mbox;
+		ECanaShadow.CANMC.bit.CDR = 1;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		ECanaMboxes.MBOX7.MDL.word.LOW_WORD = data.ax;
+		ECanaMboxes.MBOX7.MDL.word.HI_WORD = data.ay;
+		ECanaMboxes.MBOX7.MDH.word.LOW_WORD = data.az;
+		ECanaShadow.CANMC.bit.CDR = 0;
+		ECanaShadow.CANMC.bit.MBNR = 0;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		EDIS;
+		return 1;
+	case GYRO_BOX:
+		EALLOW;
+		ECanaShadow.CANMC.bit.MBNR = Mbox;
+		ECanaShadow.CANMC.bit.CDR = 1;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		ECanaMboxes.MBOX8.MDL.word.LOW_WORD = data.gx;
+		ECanaMboxes.MBOX8.MDL.word.HI_WORD = data.gy;
+		ECanaMboxes.MBOX8.MDH.word.LOW_WORD = data.gz;
 		ECanaShadow.CANMC.bit.CDR = 0;
 		ECanaShadow.CANMC.bit.MBNR = 0;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
@@ -244,8 +330,12 @@ void SendCAN(unsigned int Mbox)
 void FillCANData()
 {
 	//todo USER: use FillCAN to put data into correct mailboxes
-	FillCAN(ADC_BOX);
-	FillCAN(GP_BUTTON_BOX);
+	FillCAN(CURRENT_TIME_BOX);
+	FillCAN(ALT_ACCR_BOX);
+	FillCAN(LAT_VAL_BOX	);
+	FillCAN(LONG_BOX);
+	FillCAN(ACCEL_BOX);
+	FillCAN(GYRO_BOX);
 }
 
 // INT9.6

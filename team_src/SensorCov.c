@@ -98,7 +98,7 @@ void SensorCovMeasure()
 	unsigned char mpuIntStatus = getIntStatus();
 	fifoCount = getFIFOCount();
 
-	getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+	getMotion6(&data_temp.ax, &data_temp.ay, &data_temp.az, &data_temp.gx, &data_temp.gy, &data_temp.gz);
 	if(fifoCount >= packetSize)
 	{
 		if (fifoCount == 1024)

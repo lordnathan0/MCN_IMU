@@ -44,20 +44,33 @@ __interrupt void INT13_ISR(void)     // INT13 or CPU-Timer1
 	 EINT;		//enable all interrupts
 
 	//todo USER: Define Clock ISR
-	Clock_Ticks.DataOut++;
+	Clock_Ticks.GPS++;
+	Clock_Ticks.IMU++;
 	Clock_Ticks.HeartBeat++;
 
-	if (Clock_Ticks.DataOut >= DATAOUT_TICKS)
+	if (Clock_Ticks.GPS >= GPS_TICKS)
 	{
 		//send data or fill data
-		SendCAN(ADC_BOX);
-		SendCAN(GP_BUTTON_BOX);
-		Clock_Ticks.DataOut = 0;
+
+		SendCAN(ALT_ACCR_BOX);
+		SendCAN(LAT_VAL_BOX	);
+		SendCAN(LONG_BOX);
+
+		Clock_Ticks.GPS = 0;
+	}
+
+	if(Clock_Ticks.IMU <= IMU_TICKS)
+	{
+		SendCAN(ACCEL_BOX);
+		SendCAN(GYRO_BOX);
+
+		Clock_Ticks.IMU = 0;
 	}
 
 	if (Clock_Ticks.HeartBeat >= HEARTBEAT_TICKS)
 	{
 		HeartBeat();
+		SendCAN(CURRENT_TIME_BOX);
 		Clock_Ticks.HeartBeat = 0;
 	}
 

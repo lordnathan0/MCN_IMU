@@ -18,7 +18,7 @@
  */
 
 #define NMEA_TUD_YARDS      (1.0936)        /**< Yeards, meter * NMEA_TUD_YARDS = yard */
-#define NMEA_TUD_MILES      (1.852)         /**< Knots, kilometer / NMEA_TUD_KNOTS = knot */
+#define NMEA_TUD_KNOTS      (1.852)         /**< Knots, kilometer / NMEA_TUD_KNOTS = knot */
 #define NMEA_TUD_MILES      (1.609)         /**< Miles, kilometer / NMEA_TUD_MILES = mile */
 
 /*
