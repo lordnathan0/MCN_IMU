@@ -108,6 +108,41 @@ void CANSetup()
 	ECanaShadow.CANMD.bit.MD8 = 0; 			//transmit
 	ECanaShadow.CANME.bit.ME8 = 1;			//enable
 
+	//Post motor coolant TRANSMIT
+	ECanaMboxes.MBOX9.MSGID.bit.IDE = 0; 	//standard id
+	ECanaMboxes.MBOX9.MSGID.bit.AME = 0; 	// all bit must match
+	ECanaMboxes.MBOX9.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
+	ECanaMboxes.MBOX9.MSGCTRL.bit.DLC = 4;
+	ECanaMboxes.MBOX9.MSGID.bit.STDMSGID = POST_MOTOR_ID;
+	ECanaShadow.CANMD.bit.MD9 = 0; 			//transmit
+	ECanaShadow.CANME.bit.ME9 = 1;			//enable
+
+	//Post controller coolant TRANSMIT
+	ECanaMboxes.MBOX10.MSGID.bit.IDE = 0; 	//standard id
+	ECanaMboxes.MBOX10.MSGID.bit.AME = 0; 	// all bit must match
+	ECanaMboxes.MBOX10.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
+	ECanaMboxes.MBOX10.MSGCTRL.bit.DLC = 4;
+	ECanaMboxes.MBOX10.MSGID.bit.STDMSGID = POST_CON_ID;
+	ECanaShadow.CANMD.bit.MD10 = 0; 			//transmit
+	ECanaShadow.CANME.bit.ME10 = 1;			//enable
+
+	//ambient TRANSMIT
+	ECanaMboxes.MBOX11.MSGID.bit.IDE = 0; 	//standard id
+	ECanaMboxes.MBOX11.MSGID.bit.AME = 0; 	// all bit must match
+	ECanaMboxes.MBOX11.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
+	ECanaMboxes.MBOX11.MSGCTRL.bit.DLC = 4;
+	ECanaMboxes.MBOX11.MSGID.bit.STDMSGID = AMBIENT_ID;
+	ECanaShadow.CANMD.bit.MD11 = 0; 			//transmit
+	ECanaShadow.CANME.bit.ME11 = 1;			//enable
+
+	//ambient TRANSMIT
+	ECanaMboxes.MBOX12.MSGID.bit.IDE = 0; 	//standard id
+	ECanaMboxes.MBOX12.MSGID.bit.AME = 0; 	// all bit must match
+	ECanaMboxes.MBOX12.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
+	ECanaMboxes.MBOX12.MSGCTRL.bit.DLC = 8;
+	ECanaMboxes.MBOX12.MSGID.bit.STDMSGID = MOTOR_PLATE_ID;
+	ECanaShadow.CANMD.bit.MD12 = 0; 			//transmit
+	ECanaShadow.CANME.bit.ME12 = 1;			//enable
 
 	ECanaRegs.CANGAM.all = ECanaShadow.CANGAM.all;
 	ECanaRegs.CANGIM.all = ECanaShadow.CANGIM.all;
@@ -292,6 +327,51 @@ char FillCAN(unsigned int Mbox)
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
 		EDIS;
 		return 1;
+	case POST_MOTOR_BOX:
+		EALLOW;
+		ECanaShadow.CANMC.bit.MBNR = Mbox;
+		ECanaShadow.CANMC.bit.CDR = 1;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		ECanaMboxes.MBOX9.MDL.all = data.post_motor;
+		ECanaShadow.CANMC.bit.CDR = 0;
+		ECanaShadow.CANMC.bit.MBNR = 0;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		EDIS;
+		return 1;
+	case POST_CON_BOX:
+		EALLOW;
+		ECanaShadow.CANMC.bit.MBNR = Mbox;
+		ECanaShadow.CANMC.bit.CDR = 1;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		ECanaMboxes.MBOX10.MDL.all = data.post_controller;
+		ECanaShadow.CANMC.bit.CDR = 0;
+		ECanaShadow.CANMC.bit.MBNR = 0;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		EDIS;
+		return 1;
+	case AMBIENT_BOX:
+		EALLOW;
+		ECanaShadow.CANMC.bit.MBNR = Mbox;
+		ECanaShadow.CANMC.bit.CDR = 1;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		ECanaMboxes.MBOX11.MDL.all = data.ambient;
+		ECanaShadow.CANMC.bit.CDR = 0;
+		ECanaShadow.CANMC.bit.MBNR = 0;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		EDIS;
+		return 1;
+	case MOTOR_PLATE_BOX:
+		EALLOW;
+		ECanaShadow.CANMC.bit.MBNR = Mbox;
+		ECanaShadow.CANMC.bit.CDR = 1;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		ECanaMboxes.MBOX12.MDL.all = data.motor1;
+		ECanaMboxes.MBOX12.MDH.all = data.motor2;
+		ECanaShadow.CANMC.bit.CDR = 0;
+		ECanaShadow.CANMC.bit.MBNR = 0;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		EDIS;
+		return 1;
 	}
 	return 0;
 }
@@ -336,6 +416,10 @@ void FillCANData()
 	FillCAN(LONG_BOX);
 	FillCAN(ACCEL_BOX);
 	FillCAN(GYRO_BOX);
+	FillCAN(POST_MOTOR_BOX);
+	FillCAN(POST_CON_BOX);
+	FillCAN(AMBIENT_BOX);
+	FillCAN(MOTOR_PLATE_BOX);
 }
 
 // INT9.6

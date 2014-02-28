@@ -67,6 +67,16 @@ __interrupt void INT13_ISR(void)     // INT13 or CPU-Timer1
 		Clock_Ticks.IMU = 0;
 	}
 
+	if(Clock_Ticks.Temp <= TEMP_TICKS)
+	{
+		SendCAN(POST_MOTOR_BOX);
+		SendCAN(POST_CON_BOX);
+		SendCAN(AMBIENT_BOX);
+		SendCAN(MOTOR_PLATE_BOX);
+
+		Clock_Ticks.Temp = 0;
+	}
+
 	if (Clock_Ticks.HeartBeat >= HEARTBEAT_TICKS)
 	{
 		HeartBeat();

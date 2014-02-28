@@ -17,6 +17,11 @@ typedef struct DATA
 	int gx;
 	int gy;
 	int gz;
+	double post_motor;
+	double post_controller;
+	double ambient;
+	double motor1;
+	double motor2;
 } data_struct;
 
 #endif /* DATA_H_ */

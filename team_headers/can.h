@@ -30,10 +30,10 @@ void FillSendCAN(unsigned int Mbox);
 void ClearMailBoxes();
 
 //todo USER: DEFINE IDs and mailboxes for output
-#define COMMAND_ID 		0x1
+#define COMMAND_ID 		0xA1
 #define COMMAND_BOX 	0
 
-#define HEARTBEAT_ID 	0x0
+#define HEARTBEAT_ID 	0x22
 #define HEARTBEAT_BOX 	1
 
 #define CURRENT_TIME_ID 	0x10e
@@ -54,5 +54,16 @@ void ClearMailBoxes();
 #define GYRO_ID				0x110
 #define GYRO_BOX			8
 
+#define POST_MOTOR_ID		0x107
+#define POST_MOTOR_BOX		9
+
+#define POST_CON_ID			0x108
+#define POST_CON_BOX		10
+
+#define AMBIENT_ID			0x10A
+#define AMBIENT_BOX			11
+
+#define MOTOR_PLATE_ID		0x111
+#define MOTOR_PLATE_BOX			12
 
 #endif /* CAN_H_ */
