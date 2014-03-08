@@ -184,7 +184,9 @@ unsigned char dmpInitialize()
 
             setDLPFMode(MPU6050_DLPF_BW_42);
 
-            setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
+            //setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
+            //setFullScaleAccelRange(MPU6050_ACCEL_FS_16);
+
 
             setDMPConfig1(0x03);
             setDMPConfig2(0x00);

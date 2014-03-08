@@ -60,16 +60,15 @@ void SensorCovInit()
 	GpioCtrlRegs.GPAPUD.bit.GPIO15 = 1; 		//disable pull up
 	EDIS;
 
+	GPS_setup();
+
 	spi_fifo_init();
 	SpiGpio();
-//	I2CA_Init();
 	int id = getDeviceID();
-	//mpu_setup();
-	//I2C_writeByte(0x68, 0x23, 0); // no fifo enable
 	char status = dmpInitialize();
 
-    setFullScaleGyroRange(MPU6050_GYRO_FS_250);
-    setFullScaleAccelRange(MPU6050_ACCEL_FS_16);
+    //setFullScaleGyroRange(MPU6050_GYRO_FS_250);
+    //setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
 
 //    setXGyroOffset(-3500);
 //    setYGyroOffset(-365);
