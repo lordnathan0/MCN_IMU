@@ -10,12 +10,12 @@
 
 
 
-#define 	CLEARLED0()				GpioDataRegs.GPACLEAR.bit.GPIO29 = 1
-#define		SETLED0()				GpioDataRegs.GPASET.bit.GPIO29 = 1
+#define 	CLEARLED0()				GpioDataRegs.GPASET.bit.GPIO29 = 1
+#define		SETLED0()				GpioDataRegs.GPACLEAR.bit.GPIO29 = 1
 #define 	TOGGLELED0()			GpioDataRegs.GPATOGGLE.bit.GPIO29 = 1
 
-#define 	CLEARLED1()				GpioDataRegs.GPACLEAR.bit.GPIO9 = 1
-#define		SETLED1()				GpioDataRegs.GPASET.bit.GPIO9 = 1
+#define 	CLEARLED1()				GpioDataRegs.GPASET.bit.GPIO9 = 1
+#define		SETLED1()				GpioDataRegs.GPACLEAR.bit.GPIO9 = 1
 #define 	TOGGLELED1()			GpioDataRegs.GPATOGGLE.bit.GPIO9 = 1
 
 #define 	CLEAR12V()				GpioDataRegs.GPACLEAR.bit.GPIO20 = 1

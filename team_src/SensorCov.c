@@ -70,12 +70,27 @@ void SensorCovInit()
     //setFullScaleGyroRange(MPU6050_GYRO_FS_250);
     //setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
 
+
 //    setXGyroOffset(-3500);
 //    setYGyroOffset(-365);
 //    setZGyroOffset(210);
 //    setZAccelOffset(914);
 //    setXAccelOffset(-980);
 //    setYAccelOffset(630);
+
+
+	adcinit();
+
+	//CONFIG GP_BUTTON
+	ConfigGPButton();
+
+	//CONFIG LEDS
+	//led 0
+	ConfigLED0();
+	//led 1
+	ConfigLED1();
+	//CONFIG 12V SWITCH
+	Config12V();
 
 }
 
@@ -120,6 +135,14 @@ void SensorCovMeasure()
 			//fifoCount -= packetSize;
 		}
 	}
+
+	readADC();
+
+	data_temp.ambient = A2RESULT;
+	data_temp.motor1 = A3RESULT;
+	data_temp.motor2 = A4RESULT;
+	data_temp.post_controller = A1RESULT;
+	data_temp.post_motor = A0RESULT;
 
 }
 
