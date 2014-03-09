@@ -14,6 +14,7 @@
 #define __NMEA_INFO_H__
 
 #include "time.h"
+#include "data.h"
 
 #define NMEA_SIG_BAD        (0)
 #define NMEA_SIG_LOW        (1)
@@ -88,20 +89,20 @@ typedef struct _nmeaINFO
     int     sig;        /**< GPS quality indicator (0 = Invalid; 1 = Fix; 2 = Differential, 3 = Sensitive) */
     int     fix;        /**< Operating mode, used for navigation (1 = Fix not available; 2 = 2D; 3 = 3D) */
 
-    double  PDOP;       /**< Position Dilution Of Precision */
-    double  HDOP;       /**< Horizontal Dilution Of Precision */
-    double  VDOP;       /**< Vertical Dilution Of Precision */
+    canfloat  PDOP;       /**< Position Dilution Of Precision */
+    canfloat  HDOP;       /**< Horizontal Dilution Of Precision */
+    canfloat  VDOP;       /**< Vertical Dilution Of Precision */
 
-    double  lat;        /**< Latitude in full degrees */
-    double 	lat_min;		/**< Latitude mins */
+    canfloat  lat;        /**< Latitude in full degrees */
+    canfloat 	lat_min;		/**< Latitude mins */
     int		lat_degree; /**< Latitude degrees -/+ */
-    double  lon;        /**< Longitude in full degrees */
-    double 	long_min;	/**< Longitude mins */
+    canfloat  lon;        /**< Longitude in full degrees */
+    canfloat 	long_min;	/**< Longitude mins */
     int		long_degree; /**< Longitude degrees -/+ */
-    double  elv;        /**< Antenna altitude above/below mean sea level (geoid) in meters */
-    double  speed;      /**< Speed over the ground in miles/hour */
-    double  direction;  /**< Track angle in degrees True */
-    double  declination; /**< Magnetic variation degrees (Easterly var. subtracts from true course) */
+    canfloat  elv;        /**< Antenna altitude above/below mean sea level (geoid) in meters */
+    canfloat  speed;      /**< Speed over the ground in miles/hour */
+    canfloat  direction;  /**< Track angle in degrees True */
+    canfloat  declination; /**< Magnetic variation degrees (Easterly var. subtracts from true course) */
 
     nmeaSATINFO satinfo; /**< Satellites information */
 

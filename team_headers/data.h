@@ -9,6 +9,12 @@
 #define DATA_H_
 
 
+typedef union CANFLOAT
+{
+	float F32;
+	unsigned long U32;
+} canfloat;
+
 typedef struct DATA
 {
 	int ax;
@@ -17,11 +23,11 @@ typedef struct DATA
 	int gx;
 	int gy;
 	int gz;
-	double post_motor;
-	double post_controller;
-	double ambient;
-	double motor1;
-	double motor2;
+	canfloat post_motor;
+	canfloat post_controller;
+	canfloat ambient;
+	canfloat motor1;
+	canfloat motor2;
 } data_struct;
 
 #endif /* DATA_H_ */

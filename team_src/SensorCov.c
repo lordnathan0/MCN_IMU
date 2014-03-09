@@ -10,6 +10,9 @@
 #include "mpu6050dmp.h"
 #include "mpu6050.h"
 #include "spi.h"
+
+#define QUANTA_TO_VOLT			(3.3/4096)
+
 unsigned int fifoCount;
 
 int ax, ay, az, gx, gy, gz;
@@ -138,11 +141,11 @@ void SensorCovMeasure()
 
 	readADC();
 
-	data_temp.ambient = A2RESULT;
-	data_temp.motor1 = A3RESULT;
-	data_temp.motor2 = A4RESULT;
-	data_temp.post_controller = A1RESULT;
-	data_temp.post_motor = A0RESULT;
+	data_temp.ambient.F32 = A2RESULT * QUANTA_TO_VOLT;
+	data_temp.motor1.F32 = A3RESULT * QUANTA_TO_VOLT;
+	data_temp.motor2.F32 = A4RESULT * QUANTA_TO_VOLT;
+	data_temp.post_controller.F32 = A1RESULT * QUANTA_TO_VOLT;
+	data_temp.post_motor.F32 = A0RESULT * QUANTA_TO_VOLT;
 
 }
 

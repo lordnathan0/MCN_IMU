@@ -47,6 +47,7 @@ __interrupt void INT13_ISR(void)     // INT13 or CPU-Timer1
 	Clock_Ticks.GPS++;
 	Clock_Ticks.IMU++;
 	Clock_Ticks.HeartBeat++;
+	Clock_Ticks.Temp++;
 
 	if (Clock_Ticks.GPS >= GPS_TICKS)
 	{

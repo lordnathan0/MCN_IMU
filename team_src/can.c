@@ -271,8 +271,8 @@ char FillCAN(unsigned int Mbox)
 		ECanaShadow.CANMC.bit.MBNR = Mbox;
 		ECanaShadow.CANMC.bit.CDR = 1;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
-		ECanaMboxes.MBOX4.MDH.all = GPS.gps_info.elv;
-		ECanaMboxes.MBOX4.MDL.all = GPS.gps_info.PDOP;
+		ECanaMboxes.MBOX4.MDH.all = GPS.gps_info.elv.U32;
+		ECanaMboxes.MBOX4.MDL.all = GPS.gps_info.PDOP.U32;
 		ECanaShadow.CANMC.bit.CDR = 0;
 		ECanaShadow.CANMC.bit.MBNR = 0;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
@@ -283,7 +283,7 @@ char FillCAN(unsigned int Mbox)
 		ECanaShadow.CANMC.bit.MBNR = Mbox;
 		ECanaShadow.CANMC.bit.CDR = 1;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
-		ECanaMboxes.MBOX5.MDH.all = GPS.gps_info.lat;
+		ECanaMboxes.MBOX5.MDH.all = GPS.gps_info.lat.U32;
 		ECanaMboxes.MBOX5.MDL.byte.BYTE1 = GPS.gps_info.sig;
 		ECanaShadow.CANMC.bit.CDR = 0;
 		ECanaShadow.CANMC.bit.MBNR = 0;
@@ -295,7 +295,7 @@ char FillCAN(unsigned int Mbox)
 		ECanaShadow.CANMC.bit.MBNR = Mbox;
 		ECanaShadow.CANMC.bit.CDR = 1;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
-		ECanaMboxes.MBOX6.MDH.all = GPS.gps_info.lon;
+		ECanaMboxes.MBOX6.MDH.all = GPS.gps_info.lon.U32;
 		ECanaShadow.CANMC.bit.CDR = 0;
 		ECanaShadow.CANMC.bit.MBNR = 0;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
@@ -332,7 +332,7 @@ char FillCAN(unsigned int Mbox)
 		ECanaShadow.CANMC.bit.MBNR = Mbox;
 		ECanaShadow.CANMC.bit.CDR = 1;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
-		ECanaMboxes.MBOX9.MDL.all = data.post_motor;
+		ECanaMboxes.MBOX9.MDL.all = data.post_motor.U32;
 		ECanaShadow.CANMC.bit.CDR = 0;
 		ECanaShadow.CANMC.bit.MBNR = 0;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
@@ -343,7 +343,7 @@ char FillCAN(unsigned int Mbox)
 		ECanaShadow.CANMC.bit.MBNR = Mbox;
 		ECanaShadow.CANMC.bit.CDR = 1;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
-		ECanaMboxes.MBOX10.MDL.all = data.post_controller;
+		ECanaMboxes.MBOX10.MDL.all = data.post_controller.U32;
 		ECanaShadow.CANMC.bit.CDR = 0;
 		ECanaShadow.CANMC.bit.MBNR = 0;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
@@ -354,7 +354,7 @@ char FillCAN(unsigned int Mbox)
 		ECanaShadow.CANMC.bit.MBNR = Mbox;
 		ECanaShadow.CANMC.bit.CDR = 1;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
-		ECanaMboxes.MBOX11.MDL.all = data.ambient;
+		ECanaMboxes.MBOX11.MDL.all = data.ambient.U32;
 		ECanaShadow.CANMC.bit.CDR = 0;
 		ECanaShadow.CANMC.bit.MBNR = 0;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
@@ -365,8 +365,8 @@ char FillCAN(unsigned int Mbox)
 		ECanaShadow.CANMC.bit.MBNR = Mbox;
 		ECanaShadow.CANMC.bit.CDR = 1;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
-		ECanaMboxes.MBOX12.MDL.all = data.motor1;
-		ECanaMboxes.MBOX12.MDH.all = data.motor2;
+		ECanaMboxes.MBOX12.MDL.all = data.motor1.U32;
+		ECanaMboxes.MBOX12.MDH.all = data.motor2.U32;
 		ECanaShadow.CANMC.bit.CDR = 0;
 		ECanaShadow.CANMC.bit.MBNR = 0;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
