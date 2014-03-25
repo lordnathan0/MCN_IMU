@@ -79,9 +79,9 @@ unsigned char dmpGetLinearAccelInWorld(VectorInt16 *v, VectorInt16 *vReal, Quate
 
 unsigned char dmpGetLinearAccel(VectorInt16 *v, VectorInt16 *vRaw, VectorFloat *gravity) {
     // get rid of the gravity component full scale is 16 so 2048/g
-    v -> x = vRaw -> x - gravity -> x*2048;
-    v -> y = vRaw -> y - gravity -> y*2048;
-    v -> z = vRaw -> z - gravity -> z*2048;
+    v -> x = vRaw -> x - gravity -> x*970;
+    v -> y = vRaw -> y - gravity -> y*970;
+    v -> z = vRaw -> z - gravity -> z*970;
     return 0;
 }
 
@@ -184,8 +184,8 @@ unsigned char dmpInitialize()
 
             setDLPFMode(MPU6050_DLPF_BW_42);
 
-            //setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
-            //setFullScaleAccelRange(MPU6050_ACCEL_FS_16);
+            setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
+            setFullScaleAccelRange(MPU6050_ACCEL_FS_16);
 
 
             setDMPConfig1(0x03);
@@ -240,21 +240,21 @@ unsigned char dmpInitialize()
             for (j = 0; j < 4 || j < dmpUpdate[2] + 3; j++, pos++) dmpUpdate[j] = pgm_read_byte(&dmpUpdates[pos]);
             writeMemoryBlock(dmpUpdate + 3, dmpUpdate[2], dmpUpdate[0], dmpUpdate[1], true, false);
 
-            while ((getFIFOCount()) < 3) {DELAY_US(500);}
-
-            fifoCount = getFIFOCount();
-
-            getFIFOBytes(fifoBuffer, fifoCount);
+//            while ((getFIFOCount()) < 3) {DELAY_US(500);}
+//
+//            fifoCount = getFIFOCount();
+//
+//            getFIFOBytes(fifoBuffer, fifoCount);
 
             unsigned char mpuIntStatus = getIntStatus();
 
             for (j = 0; j < 4 || j < dmpUpdate[2] + 3; j++, pos++) dmpUpdate[j] = pgm_read_byte(&dmpUpdates[pos]);
             readMemoryBlock(dmpUpdate + 3, dmpUpdate[2], dmpUpdate[0], dmpUpdate[1]);
 
-            while ((getFIFOCount()) < 3) {DELAY_US(500);}
-
-            fifoCount = getFIFOCount();
-            getFIFOBytes(fifoBuffer, fifoCount);
+//            while ((getFIFOCount()) < 3) {DELAY_US(500);}
+//
+//            fifoCount = getFIFOCount();
+//            getFIFOBytes(fifoBuffer, fifoCount);
 
             mpuIntStatus = getIntStatus();
 

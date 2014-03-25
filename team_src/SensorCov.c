@@ -10,19 +10,13 @@
 #include "mpu6050dmp.h"
 #include "mpu6050.h"
 #include "spi.h"
+#include <math.h>
 
 #define QUANTA_TO_VOLT			(3.3/4096)
 
 unsigned int fifoCount;
 
-int ax, ay, az, gx, gy, gz;
-
-float ypr[3];
-Quaternion q;
-VectorInt16 aa;
-VectorFloat gravity;
-VectorInt16 aaReal;
-
+stopwatch_struct* conv_watch;
 ops_struct ops_temp;
 data_struct data_temp;
 
@@ -94,6 +88,7 @@ void SensorCovInit()
 	ConfigLED1();
 	//CONFIG 12V SWITCH
 	Config12V();
+	conv_watch = StartStopWatch(50000);
 
 }
 
@@ -128,24 +123,58 @@ void SensorCovMeasure()
 			// wait for correct available data length, should be a VERY short wait
 			while (fifoCount < packetSize) fifoCount = getFIFOCount();
 
+			StopWatchRestart(conv_watch);
+
 			getFIFOBytes(fifoBuffer, packetSize);
-            dmpGetQuaternion(&q, fifoBuffer);
-            dmpGetAccel(&aa, fifoBuffer);
-            dmpGetGravity(&gravity, &q);
-            dmpGetLinearAccel(&aaReal, &aa, &gravity);
-            dmpGetYawPitchRoll(ypr, &q, &gravity);
+            dmpGetQuaternion(&data_temp.q, fifoBuffer);
+            dmpGetAccel(&data_temp.aa, fifoBuffer);
+            dmpGetGravity(&data_temp.gravity, &data_temp.q);
+            dmpGetYawPitchRoll(data_temp.ypr, &data_temp.q, &data_temp.gravity);
 			//probably not necessary
 			//fifoCount -= packetSize;
 		}
 	}
 
+#define adc_ratio(x)	(((double)x)/(4096.0))
+#define r_inf		(double)0.12885174498
+#define B			(double)3375
+#define r2  		(double)1470 //resistor before adc
+#define r1			(double)1820 //resistor after adc
+		double temp;
+
 	readADC();
 
-	data_temp.ambient.F32 = A2RESULT * QUANTA_TO_VOLT;
-	data_temp.motor1.F32 = A3RESULT * QUANTA_TO_VOLT;
-	data_temp.motor2.F32 = A4RESULT * QUANTA_TO_VOLT;
-	data_temp.post_controller.F32 = A1RESULT * QUANTA_TO_VOLT;
-	data_temp.post_motor.F32 = A0RESULT * QUANTA_TO_VOLT;
+
+	//Controller cool side
+	//thermistor
+	temp = r1*(1/((1/adc_ratio(B0RESULT))-1))-r2;
+	data_temp.post_controller.F32 = ((B)/(log((temp/r_inf)))) - 273.5;
+
+	//Ambient
+	//thermistor
+	temp = r1*(1/((1/adc_ratio(B1RESULT))-1))-r2;
+	data_temp.ambient.F32 = (B)/(log((temp/r_inf)))- 273.5;
+
+	//Rear break pressure
+	//Vout = ((.8*5)/3000) * P + .5
+	//P = ((Vout-.5)*3000)/(.8*5)
+	//Vm = (10/15.6)*Vout
+	//Vout = (15.6/10) *Vm
+	//Vm = ADC*QUANTA_TO_VOLT;
+	//kpa = P * 6.8947
+	temp = B2RESULT * QUANTA_TO_VOLT; 				//Vm
+	temp = temp * (15.6/10); 						//Vout
+	temp = ((temp-.5)*3000)/(4); 					// Psi
+	data_temp.break_pressure.F32 = temp ;
+
+	if (isStopWatchComplete(conv_watch) == 1)
+	{
+		ops_temp.Flags.bit.cov_error = 1;
+	}
+	else
+	{
+		ops_temp.Flags.bit.cov_error = 0;
+	}
 
 }
 

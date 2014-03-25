@@ -314,9 +314,9 @@ int nmea_parse_GPRMC(const char *buff, int buff_sz, nmeaGPRMC *pack)
         return 0;
     }
 
-    if(pack->utc.year < 90)
-        pack->utc.year += 100;
-    pack->utc.mon -= 1;
+//    if(pack->utc.year < 90)
+//        pack->utc.year += 100;
+ //   pack->utc.mon -= 1;
 
     return 1;
 }
@@ -383,8 +383,8 @@ void nmea_GPGGA2info(nmeaGPGGA *pack, nmeaINFO *info)
     info->long_min.F32 = pack->lon - info->long_degree*100;
     info->lon.F32 = info->long_degree + info->long_min.F32/60;
 
-    info->lat.F32 = ((pack->ns == 'N')?pack->lat:-(pack->lat));
-    info->lon.F32 = ((pack->ew == 'E')?pack->lon:-(pack->lon));
+    info->lat.F32 = ((pack->ns == 'N')?info->lat.F32:-(info->lat.F32));
+    info->lon.F32 = ((pack->ew == 'E')?info->lon.F32:-(info->lon.F32));
 
     info->smask |= GPGGA;
 }
@@ -464,25 +464,25 @@ void nmea_GPGSV2info(nmeaGPGSV *pack, nmeaINFO *info)
 void nmea_GPRMC2info(nmeaGPRMC *pack, nmeaINFO *info)
 {
 
-
-    if('A' == pack->status)
-    {
-        if(NMEA_SIG_BAD == info->sig)
-            info->sig = NMEA_SIG_MID;
-        if(NMEA_FIX_BAD == info->fix)
-            info->fix = NMEA_FIX_2D;
-    }
-    else if('V' == pack->status)
-    {
-        info->sig = NMEA_SIG_BAD;
-        info->fix = NMEA_FIX_BAD;
-    }
+//
+//    if('A' == pack->status)
+//    {
+//        if(NMEA_SIG_BAD == info->sig)
+//            info->sig = NMEA_SIG_MID;
+//        if(NMEA_FIX_BAD == info->fix)
+//            info->fix = NMEA_FIX_2D;
+//    }
+//    else if('V' == pack->status)
+//    {
+//        info->sig = NMEA_SIG_BAD;
+//        info->fix = NMEA_FIX_BAD;
+//    }
 
     info->utc = pack->utc;
-    info->lat.F32 = ((pack->ns == 'N')?pack->lat:-(pack->lat));
-    info->lon.F32 = ((pack->ew == 'E')?pack->lon:-(pack->lon));
-    info->speed.F32 = pack->speed * NMEA_TUD_MILES;
-    info->direction.F32 = pack->direction;
+//    info->lat.F32 = ((pack->ns == 'N')?pack->lat:-(pack->lat));
+//    info->lon.F32 = ((pack->ew == 'E')?pack->lon:-(pack->lon));
+//    info->speed.F32 = pack->speed * NMEA_TUD_MILES;
+//    info->direction.F32 = pack->direction;
     info->smask |= GPRMC;
 }
 

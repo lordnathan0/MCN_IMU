@@ -56,6 +56,7 @@ __interrupt void INT13_ISR(void)     // INT13 or CPU-Timer1
 		SendCAN(ALT_ACCR_BOX);
 		SendCAN(LAT_VAL_BOX	);
 		SendCAN(LONG_BOX);
+		SendCAN(GPS_SPEED_BOX);
 
 		Clock_Ticks.GPS = 0;
 	}
@@ -64,24 +65,30 @@ __interrupt void INT13_ISR(void)     // INT13 or CPU-Timer1
 	{
 		SendCAN(ACCEL_BOX);
 		SendCAN(GYRO_BOX);
+		SendCAN(IMU1_BOX);
+		SendCAN(IMU2_BOX);
+		SendCAN(IMU3_BOX);
+		SendCAN(IMU4_BOX);
+		SendCAN(IMU5_BOX);
 
 		Clock_Ticks.IMU = 0;
 	}
 
 	if(Clock_Ticks.Temp <= TEMP_TICKS)
 	{
-		SendCAN(POST_MOTOR_BOX);
 		SendCAN(POST_CON_BOX);
 		SendCAN(AMBIENT_BOX);
-		SendCAN(MOTOR_PLATE_BOX);
+		SendCAN(R_BRAKE_PRESSURE_BOX);
 
 		Clock_Ticks.Temp = 0;
 	}
 
 	if (Clock_Ticks.HeartBeat >= HEARTBEAT_TICKS)
 	{
+		//BUS_OFF();
 		HeartBeat();
 		SendCAN(CURRENT_TIME_BOX);
+		TOGGLELED0();
 		Clock_Ticks.HeartBeat = 0;
 	}
 

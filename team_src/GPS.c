@@ -18,7 +18,8 @@ nmeaGPVTG vtg;
 
 sci_struct GPS;
 
-const char choose[] = "$PMTK314,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29\r\n"; //choose gga, rmc, vtg
+const char choose[] = "$PMTK314,0,5,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*2D\r\n"; //choose gga, rmc, vtg
+//const char choose[] = $PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28
 //const char choose[] = "$PMTK314,0,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0*28"; //choose gga, rmc, vtg, gsv
 const char freq[] = "$PMTK220, 200*2C\r\n";	// 5hz
 
@@ -89,8 +90,8 @@ void GPS_parse()
 		nmea_GPGSV2info(&gsv, &GPS.gps_info);
 		break;
 	case GPRMC: //not useful data
-		//nmea_parse_GPRMC((const char *)ops.GPS.gps_sentence,ops.GPS.sentence_length,  &rmc);
-		//nmea_GPRMC2info(&rmc, &data.gps_info);
+		nmea_parse_GPRMC((const char *)GPS.gps_sentence,GPS.sentence_length,  &rmc);
+		nmea_GPRMC2info(&rmc, &GPS.gps_info);
 		break;
 	case GPVTG:
 		nmea_parse_GPVTG((const char *)GPS.gps_sentence,GPS.sentence_length,  &vtg);

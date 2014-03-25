@@ -8,6 +8,7 @@
 #ifndef DATA_H_
 #define DATA_H_
 
+#include "mpu6050dmp.h"
 
 typedef union CANFLOAT
 {
@@ -26,8 +27,11 @@ typedef struct DATA
 	canfloat post_motor;
 	canfloat post_controller;
 	canfloat ambient;
-	canfloat motor1;
-	canfloat motor2;
+	canfloat break_pressure;
+	float ypr[3];
+	Quaternion q;
+	VectorInt16 aa;
+	VectorFloat gravity;
 } data_struct;
 
 #endif /* DATA_H_ */

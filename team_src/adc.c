@@ -37,8 +37,8 @@ void adcinit()
 	AdcRegs.ADCSOC3CTL.bit.CHSEL  = 3; // SOC3 TO A3
 	AdcRegs.ADCSOC4CTL.bit.CHSEL  = 4; // SOC4 TO A4
 	AdcRegs.ADCSOC5CTL.bit.CHSEL  = 5; // SOC5 TO A5
-	//AdcRegs.ADCSOC6CTL.bit.CHSEL  = 6; // SOC6 TO A6
-	//AdcRegs.ADCSOC7CTL.bit.CHSEL  = 7; // SOC7 TO A7
+	AdcRegs.ADCSOC6CTL.bit.CHSEL  = 6; // SOC6 TO A6
+	AdcRegs.ADCSOC7CTL.bit.CHSEL  = 7; // SOC7 TO A7
 
 	AdcRegs.ADCSOC8CTL.bit.CHSEL  = 8; // SOC8 TO B0
 	AdcRegs.ADCSOC9CTL.bit.CHSEL  = 9; // SOC9 TO B1
@@ -57,8 +57,8 @@ void adcinit()
 	AdcRegs.ADCSOC4CTL.bit.ACQPS  = ACQPS_VALUE; //Set SOC4 acquisition period to DEFINED PERIOD
 	AdcRegs.ADCSOC5CTL.bit.ACQPS  = ACQPS_VALUE; //Set SOC5 acquisition period to DEFINED PERIOD
 	AdcRegs.ADCSOC6CTL.bit.ACQPS  = ACQPS_VALUE; //Set SOC6 acquisition period to DEFINED PERIOD
-	//AdcRegs.ADCSOC7CTL.bit.ACQPS  = ACQPS_VALUE; //Set SOC7 acquisition period to DEFINED PERIOD
-	//AdcRegs.ADCSOC8CTL.bit.ACQPS  = ACQPS_VALUE; //Set SOC8 acquisition period to DEFINED PERIOD
+	AdcRegs.ADCSOC7CTL.bit.ACQPS  = ACQPS_VALUE; //Set SOC7 acquisition period to DEFINED PERIOD
+	AdcRegs.ADCSOC8CTL.bit.ACQPS  = ACQPS_VALUE; //Set SOC8 acquisition period to DEFINED PERIOD
 	AdcRegs.ADCSOC9CTL.bit.ACQPS  = ACQPS_VALUE; //Set SOC9 acquisition period to DEFINED PERIOD
 	AdcRegs.ADCSOC10CTL.bit.ACQPS  = ACQPS_VALUE; //Set SOC10 acquisition period to DEFINED PERIOD
 	AdcRegs.ADCSOC11CTL.bit.ACQPS  = ACQPS_VALUE; //Set SOC11 acquisition period to DEFINED PERIOD
@@ -76,8 +76,8 @@ void adcinit()
 
 void readADC()
 {
-	//AdcRegs.ADCSOCFRC1.all = 0xFFFF; 	//all socs
-	AdcRegs.ADCSOCFRC1.all = 0xFE7F; 		//not 7 and 8
+	AdcRegs.ADCSOCFRC1.all = 0xFFFF; 	//all socs
+	//AdcRegs.ADCSOCFRC1.all = 0xFE7F; 		//not 7 and 8
 
     while(AdcRegs.ADCINTFLG.bit.ADCINT1 == 0){}  //Wait for ADCINT1
     AdcRegs.ADCINTFLGCLR.bit.ADCINT1 = 1;

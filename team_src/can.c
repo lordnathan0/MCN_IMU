@@ -6,10 +6,28 @@
  */
 #include "all.h"
 
-unsigned int mask;
+unsigned long mask;
 stopwatch_struct* can_watch;
 struct ECAN_REGS ECanaShadow;
 extern sci_struct GPS;
+
+void BUS_OFF()
+{
+	EALLOW;
+	ECanaShadow.CANMC.all = ECanaRegs.CANMC.all;
+
+
+	ECanaShadow.CANMC.bit.CCR = 0;
+	ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+
+	ECanaShadow.CANES.all = ECanaRegs.CANES.all;
+	while (ECanaShadow.CANES.bit.CCE != 0)
+	{
+		ECanaShadow.CANES.all = ECanaRegs.CANES.all;
+	}
+
+	EDIS;
+}
 
 void CANSetup()
 {
@@ -108,14 +126,6 @@ void CANSetup()
 	ECanaShadow.CANMD.bit.MD8 = 0; 			//transmit
 	ECanaShadow.CANME.bit.ME8 = 1;			//enable
 
-	//Post motor coolant TRANSMIT
-	ECanaMboxes.MBOX9.MSGID.bit.IDE = 0; 	//standard id
-	ECanaMboxes.MBOX9.MSGID.bit.AME = 0; 	// all bit must match
-	ECanaMboxes.MBOX9.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
-	ECanaMboxes.MBOX9.MSGCTRL.bit.DLC = 4;
-	ECanaMboxes.MBOX9.MSGID.bit.STDMSGID = POST_MOTOR_ID;
-	ECanaShadow.CANMD.bit.MD9 = 0; 			//transmit
-	ECanaShadow.CANME.bit.ME9 = 1;			//enable
 
 	//Post controller coolant TRANSMIT
 	ECanaMboxes.MBOX10.MSGID.bit.IDE = 0; 	//standard id
@@ -135,14 +145,69 @@ void CANSetup()
 	ECanaShadow.CANMD.bit.MD11 = 0; 			//transmit
 	ECanaShadow.CANME.bit.ME11 = 1;			//enable
 
-	//ambient TRANSMIT
+	// Rear brake pressure TRANSMIT
 	ECanaMboxes.MBOX12.MSGID.bit.IDE = 0; 	//standard id
 	ECanaMboxes.MBOX12.MSGID.bit.AME = 0; 	// all bit must match
 	ECanaMboxes.MBOX12.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
-	ECanaMboxes.MBOX12.MSGCTRL.bit.DLC = 8;
-	ECanaMboxes.MBOX12.MSGID.bit.STDMSGID = MOTOR_PLATE_ID;
+	ECanaMboxes.MBOX12.MSGCTRL.bit.DLC = 4;
+	ECanaMboxes.MBOX12.MSGID.bit.STDMSGID = R_BRAKE_PRESSURE_ID;
 	ECanaShadow.CANMD.bit.MD12 = 0; 			//transmit
 	ECanaShadow.CANME.bit.ME12 = 1;			//enable
+
+	// IMU 1 TRANSMIT
+	ECanaMboxes.MBOX13.MSGID.bit.IDE = 0; 	//standard id
+	ECanaMboxes.MBOX13.MSGID.bit.AME = 0; 	// all bit must match
+	ECanaMboxes.MBOX13.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
+	ECanaMboxes.MBOX13.MSGCTRL.bit.DLC = 8;
+	ECanaMboxes.MBOX13.MSGID.bit.STDMSGID = IMU1_ID;
+	ECanaShadow.CANMD.bit.MD13 = 0; 			//transmit
+	ECanaShadow.CANME.bit.ME13 = 1;			//enable
+
+	// IMU 2 TRANSMIT
+	ECanaMboxes.MBOX14.MSGID.bit.IDE = 0; 	//standard id
+	ECanaMboxes.MBOX14.MSGID.bit.AME = 0; 	// all bit must match
+	ECanaMboxes.MBOX14.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
+	ECanaMboxes.MBOX14.MSGCTRL.bit.DLC = 8;
+	ECanaMboxes.MBOX14.MSGID.bit.STDMSGID = IMU2_ID;
+	ECanaShadow.CANMD.bit.MD14 = 0; 			//transmit
+	ECanaShadow.CANME.bit.ME14 = 1;			//enable
+
+	// IMU 3 TRANSMIT
+	ECanaMboxes.MBOX15.MSGID.bit.IDE = 0; 	//standard id
+	ECanaMboxes.MBOX15.MSGID.bit.AME = 0; 	// all bit must match
+	ECanaMboxes.MBOX15.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
+	ECanaMboxes.MBOX15.MSGCTRL.bit.DLC = 8;
+	ECanaMboxes.MBOX15.MSGID.bit.STDMSGID = IMU3_ID;
+	ECanaShadow.CANMD.bit.MD15 = 0; 			//transmit
+	ECanaShadow.CANME.bit.ME15 = 1;			//enable
+
+	// IMU 4 TRANSMIT
+	ECanaMboxes.MBOX16.MSGID.bit.IDE = 0; 	//standard id
+	ECanaMboxes.MBOX16.MSGID.bit.AME = 0; 	// all bit must match
+	ECanaMboxes.MBOX16.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
+	ECanaMboxes.MBOX16.MSGCTRL.bit.DLC = 8;
+	ECanaMboxes.MBOX16.MSGID.bit.STDMSGID = IMU4_ID;
+	ECanaShadow.CANMD.bit.MD16 = 0; 			//transmit
+	ECanaShadow.CANME.bit.ME16 = 1;			//enable
+
+
+	// IMU 5 TRANSMIT
+	ECanaMboxes.MBOX17.MSGID.bit.IDE = 0; 	//standard id
+	ECanaMboxes.MBOX17.MSGID.bit.AME = 0; 	// all bit must match
+	ECanaMboxes.MBOX17.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
+	ECanaMboxes.MBOX17.MSGCTRL.bit.DLC = 4;
+	ECanaMboxes.MBOX17.MSGID.bit.STDMSGID = IMU5_ID;
+	ECanaShadow.CANMD.bit.MD17 = 0; 			//transmit
+	ECanaShadow.CANME.bit.ME17 = 1;			//enable
+
+	// GPS speed TRANSMIT
+	ECanaMboxes.MBOX18.MSGID.bit.IDE = 0; 	//standard id
+	ECanaMboxes.MBOX18.MSGID.bit.AME = 0; 	// all bit must match
+	ECanaMboxes.MBOX18.MSGID.bit.AAM = 1; 	//RTR AUTO TRANSMIT
+	ECanaMboxes.MBOX18.MSGCTRL.bit.DLC = 4;
+	ECanaMboxes.MBOX18.MSGID.bit.STDMSGID = GPS_SPEED_ID;
+	ECanaShadow.CANMD.bit.MD18 = 0; 			//transmit
+	ECanaShadow.CANME.bit.ME18 = 1;			//enable
 
 	ECanaRegs.CANGAM.all = ECanaShadow.CANGAM.all;
 	ECanaRegs.CANGIM.all = ECanaShadow.CANGIM.all;
@@ -255,12 +320,12 @@ char FillCAN(unsigned int Mbox)
 		ECanaShadow.CANMC.bit.MBNR = Mbox;
 		ECanaShadow.CANMC.bit.CDR = 1;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
-		ECanaMboxes.MBOX3.MDL.word.LOW_WORD = GPS.gps_info.utc.year;
-		ECanaMboxes.MBOX3.MDL.byte.BYTE2 = GPS.gps_info.utc.mon;
-		ECanaMboxes.MBOX3.MDL.byte.BYTE3 = GPS.gps_info.utc.day;
-		ECanaMboxes.MBOX3.MDH.byte.BYTE4 = GPS.gps_info.utc.hour;
-		ECanaMboxes.MBOX3.MDH.byte.BYTE5 = GPS.gps_info.utc.min;
-		ECanaMboxes.MBOX3.MDH.byte.BYTE6 = GPS.gps_info.utc.sec;
+		ECanaMboxes.MBOX3.MDL.word.LOW_WORD = GPS.gps_info.utc.year + 2000;
+		ECanaMboxes.MBOX3.MDL.byte.BYTE1 = GPS.gps_info.utc.mon;
+		ECanaMboxes.MBOX3.MDL.byte.BYTE0 = GPS.gps_info.utc.day;
+		ECanaMboxes.MBOX3.MDH.byte.BYTE7 = GPS.gps_info.utc.hour;
+		ECanaMboxes.MBOX3.MDH.byte.BYTE5 = GPS.gps_info.utc.sec;
+		ECanaMboxes.MBOX3.MDH.byte.BYTE6 = GPS.gps_info.utc.min;
 		ECanaShadow.CANMC.bit.CDR = 0;
 		ECanaShadow.CANMC.bit.MBNR = 0;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
@@ -283,8 +348,15 @@ char FillCAN(unsigned int Mbox)
 		ECanaShadow.CANMC.bit.MBNR = Mbox;
 		ECanaShadow.CANMC.bit.CDR = 1;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
-		ECanaMboxes.MBOX5.MDH.all = GPS.gps_info.lat.U32;
-		ECanaMboxes.MBOX5.MDL.byte.BYTE1 = GPS.gps_info.sig;
+		ECanaMboxes.MBOX5.MDL.all = GPS.gps_info.lat.U32;
+		if (GPS.gps_info.sig > 0)
+		{
+			ECanaMboxes.MBOX5.MDH.byte.BYTE7 = 1;
+		}
+		else
+		{
+			ECanaMboxes.MBOX5.MDH.byte.BYTE7 = 0;
+		}
 		ECanaShadow.CANMC.bit.CDR = 0;
 		ECanaShadow.CANMC.bit.MBNR = 0;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
@@ -295,7 +367,7 @@ char FillCAN(unsigned int Mbox)
 		ECanaShadow.CANMC.bit.MBNR = Mbox;
 		ECanaShadow.CANMC.bit.CDR = 1;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
-		ECanaMboxes.MBOX6.MDH.all = GPS.gps_info.lon.U32;
+		ECanaMboxes.MBOX6.MDL.all = GPS.gps_info.lon.U32;
 		ECanaShadow.CANMC.bit.CDR = 0;
 		ECanaShadow.CANMC.bit.MBNR = 0;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
@@ -327,17 +399,6 @@ char FillCAN(unsigned int Mbox)
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
 		EDIS;
 		return 1;
-	case POST_MOTOR_BOX:
-		EALLOW;
-		ECanaShadow.CANMC.bit.MBNR = Mbox;
-		ECanaShadow.CANMC.bit.CDR = 1;
-		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
-		ECanaMboxes.MBOX9.MDL.all = data.post_motor.U32;
-		ECanaShadow.CANMC.bit.CDR = 0;
-		ECanaShadow.CANMC.bit.MBNR = 0;
-		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
-		EDIS;
-		return 1;
 	case POST_CON_BOX:
 		EALLOW;
 		ECanaShadow.CANMC.bit.MBNR = Mbox;
@@ -360,15 +421,90 @@ char FillCAN(unsigned int Mbox)
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
 		EDIS;
 		return 1;
-	case MOTOR_PLATE_BOX:
+	case R_BRAKE_PRESSURE_BOX:
+		//todo Nathan define heartbeat
 		EALLOW;
 		ECanaShadow.CANMC.bit.MBNR = Mbox;
 		ECanaShadow.CANMC.bit.CDR = 1;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
-		ECanaMboxes.MBOX12.MDL.all = data.motor1.U32;
-		ECanaMboxes.MBOX12.MDH.all = data.motor2.U32;
-		ECanaShadow.CANMC.bit.CDR = 0;
+		ECanaMboxes.MBOX12.MDL.all = data.break_pressure.U32;
 		ECanaShadow.CANMC.bit.MBNR = 0;
+		ECanaShadow.CANMC.bit.CDR = 0;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		EDIS;
+		return 1;
+	case IMU1_BOX:
+		//todo Nathan define heartbeat
+		EALLOW;
+		ECanaShadow.CANMC.bit.MBNR = Mbox;
+		ECanaShadow.CANMC.bit.CDR = 1;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		ECanaMboxes.MBOX13.MDL.all = data.aa.x;
+		ECanaMboxes.MBOX13.MDH.all = data.aa.y;
+		ECanaShadow.CANMC.bit.MBNR = 0;
+		ECanaShadow.CANMC.bit.CDR = 0;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		EDIS;
+		return 1;
+	case IMU2_BOX:
+		//todo Nathan define heartbeat
+		EALLOW;
+		ECanaShadow.CANMC.bit.MBNR = Mbox;
+		ECanaShadow.CANMC.bit.CDR = 1;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		ECanaMboxes.MBOX14.MDL.all = data.aa.z;
+		memcpy((void*)&ECanaMboxes.MBOX14.MDH.all,(void*)&data.gravity.x,sizeof ECanaMboxes.MBOX14.MDH.all);
+		ECanaShadow.CANMC.bit.MBNR = 0;
+		ECanaShadow.CANMC.bit.CDR = 0;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		EDIS;
+		return 1;
+	case IMU3_BOX:
+		//todo Nathan define heartbeat
+		EALLOW;
+		ECanaShadow.CANMC.bit.MBNR = Mbox;
+		ECanaShadow.CANMC.bit.CDR = 1;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		memcpy((void*)&ECanaMboxes.MBOX15.MDL.all,(void*)&data.gravity.y,sizeof ECanaMboxes.MBOX15.MDL.all);
+		memcpy((void*)&ECanaMboxes.MBOX15.MDH.all,(void*)&data.gravity.z,sizeof ECanaMboxes.MBOX15.MDH.all);
+		ECanaShadow.CANMC.bit.MBNR = 0;
+		ECanaShadow.CANMC.bit.CDR = 0;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		EDIS;
+		return 1;
+	case IMU4_BOX:
+		//todo Nathan define heartbeat
+		EALLOW;
+		ECanaShadow.CANMC.bit.MBNR = Mbox;
+		ECanaShadow.CANMC.bit.CDR = 1;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		memcpy((void*)&ECanaMboxes.MBOX16.MDL.all,(void*)&data.ypr[0],sizeof ECanaMboxes.MBOX16.MDL.all);
+		memcpy((void*)&ECanaMboxes.MBOX16.MDH.all,(void*)&data.ypr[1],sizeof ECanaMboxes.MBOX16.MDH.all);
+		ECanaShadow.CANMC.bit.MBNR = 0;
+		ECanaShadow.CANMC.bit.CDR = 0;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		EDIS;
+		return 1;
+	case IMU5_BOX:
+		//todo Nathan define heartbeat
+		EALLOW;
+		ECanaShadow.CANMC.bit.MBNR = Mbox;
+		ECanaShadow.CANMC.bit.CDR = 1;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		memcpy((void*)&ECanaMboxes.MBOX17.MDL.all,(void*)&data.ypr[2],sizeof ECanaMboxes.MBOX17.MDL.all);
+		ECanaShadow.CANMC.bit.MBNR = 0;
+		ECanaShadow.CANMC.bit.CDR = 0;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		EDIS;
+		return 1;
+	case GPS_SPEED_BOX:
+		EALLOW;
+		ECanaShadow.CANMC.bit.MBNR = Mbox;
+		ECanaShadow.CANMC.bit.CDR = 1;
+		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
+		ECanaMboxes.MBOX18.MDL.all = GPS.gps_info.speed.U32;
+		ECanaShadow.CANMC.bit.MBNR = 0;
+		ECanaShadow.CANMC.bit.CDR = 0;
 		ECanaRegs.CANMC.all = ECanaShadow.CANMC.all;
 		EDIS;
 		return 1;
@@ -386,9 +522,14 @@ void FillSendCAN(unsigned Mbox)
 
 void SendCAN(unsigned int Mbox)
 {
-	mask = 1 << Mbox;
+	mask = 1UL << Mbox;
 	ECanaRegs.CANTRS.all = mask;
 
+	ECanaShadow.CANMC.all = ECanaRegs.CANMC.all;
+	if (ECanaShadow.CANMC.bit.CCR == 1)
+	{
+		BUS_OFF();
+	}
 	//todo Nathan: calibrate sendcan stopwatch
 	StopWatchRestart(can_watch);
 
@@ -416,10 +557,15 @@ void FillCANData()
 	FillCAN(LONG_BOX);
 	FillCAN(ACCEL_BOX);
 	FillCAN(GYRO_BOX);
-	FillCAN(POST_MOTOR_BOX);
 	FillCAN(POST_CON_BOX);
 	FillCAN(AMBIENT_BOX);
-	FillCAN(MOTOR_PLATE_BOX);
+	FillCAN(R_BRAKE_PRESSURE_BOX);
+	FillCAN(IMU1_BOX);
+	FillCAN(IMU2_BOX);
+	FillCAN(IMU3_BOX);
+	FillCAN(IMU4_BOX);
+	FillCAN(IMU5_BOX);
+	FillCAN(GPS_SPEED_BOX);
 }
 
 // INT9.6
