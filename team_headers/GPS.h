@@ -18,13 +18,16 @@
 typedef struct SCI
 {
 	unsigned char startflag : 1;
-	unsigned char gps_sentence [SENTENCE_SIZE];
-	unsigned int sentence_length;
+	unsigned char gps[SENTENCE_SIZE];
+	unsigned char gps_sentence [3][SENTENCE_SIZE];
+	unsigned char gps_complete[3];
+	unsigned int length;
+	unsigned int sentence_length[3];
 	nmeaINFO gps_info;
 }sci_struct;
 
 
-
+void GPS_Choose();
 void GPS_setup();
 void GPS_stop();
 void GPS_buffer_setup();

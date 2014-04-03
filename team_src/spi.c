@@ -5,8 +5,11 @@
  *      Author: Nathan
  */
 
+
+
 #include "all.h"
 #include "spi.h"
+
 
 char dummy;
 
@@ -100,7 +103,7 @@ void SpiGpio()
 unsigned int Send_SPI(unsigned char* a)
 {
 	SpibRegs.SPITXBUF=(*a)<<8;
-	while(SpibRegs.SPISTS.bit.INT_FLAG !=1);
+	while((SpibRegs.SPISTS.bit.INT_FLAG !=1));
 	SpiaRegs.SPIFFRX.bit.RXFFOVFCLR=1;  // Clear Overflow flag
 
 	dummy  = SpibRegs.SPIRXBUF;
@@ -110,7 +113,7 @@ unsigned int Send_SPI(unsigned char* a)
 unsigned int Read_SPI(unsigned char* a)
 {
 	SpibRegs.SPITXBUF=0;
-	while(SpibRegs.SPISTS.bit.INT_FLAG !=1);
+	while((SpibRegs.SPISTS.bit.INT_FLAG !=1));
 	SpiaRegs.SPIFFRX.bit.RXFFOVFCLR=1;  // Clear Overflow flag
 
 	*a = SpibRegs.SPIRXBUF;

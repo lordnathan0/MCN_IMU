@@ -107,6 +107,7 @@ void SensorCovMeasure()
 	//update data_temp and ops_temp
 	//use stopwatch to catch timeouts
 	//waiting should poll isStopWatchComplete() to catch timeout and throw StopWatchError
+	GPS_parse();
 	unsigned char mpuIntStatus = getIntStatus();
 	fifoCount = getFIFOCount();
 
@@ -142,7 +143,9 @@ void SensorCovMeasure()
 #define r1			(double)1820 //resistor after adc
 		double temp;
 
+
 	readADC();
+
 
 
 	//Controller cool side
