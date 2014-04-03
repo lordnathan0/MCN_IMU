@@ -14,7 +14,7 @@ int main(void)
 {
 	StartUp();
 	BootISRSetup();
-	PowerDownISRSetup();
+	//PowerDownISRSetup();
 	ops.State = STATE_INIT;
 	while(1)
 	{
