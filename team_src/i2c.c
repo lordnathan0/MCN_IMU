@@ -62,86 +62,100 @@ char I2C_readByte(unsigned char devAddr, unsigned char regAddr, unsigned char *d
 }
 
 
-char I2C_readBytes(unsigned char devAddr, unsigned char regAddr, unsigned int length, unsigned char *d)
-{
-	unsigned char a;
-	int i;
-	a = regAddr | 0x80; //write so change msb bit to 1
-	SLAVEENCLEAR();
-	Send_SPI(&a);
-
-	if (length > 0)
-	{
-		Read_SPI(d);
-		length--;
-
-		for(i = 0; i<length; i++)
-		{
-			d++;
-			Read_SPI(d);
-		}
-	}
-
-	SLAVEENSET();
-	return true;
-}
-
 //char I2C_readBytes(unsigned char devAddr, unsigned char regAddr, unsigned int length, unsigned char *d)
 //{
-//	// Wait until the STP bit is cleared from any previous master communication.
-//	// Clearing of this bit by the module is delayed until after the SCD bit is
-//	// set. If this bit is not checked prior to initiating a new message, the
-//	// I2C could get confused.
+//	unsigned char a;
 //	int i;
+//	a = regAddr | 0x80; //write so change msb bit to 1
+//	SLAVEENCLEAR();
+//	Send_SPI(&a);
 //
-//	// Setup slave address
-//	I2caRegs.I2CSAR = devAddr;
-//
-//	// Check if bus busy
-//	while (I2caRegs.I2CSTR.bit.BB == 1)
+//	if (length > 0)
 //	{
-//		I2caRegs.I2CMDR.bit.IRS = 0;
-//		I2caRegs.I2CMDR.bit.IRS = 1;
-//	}
+//		Read_SPI(d);
+//		length--;
 //
-//	I2caRegs.I2CMDR.bit.MST = 1;
-//	I2caRegs.I2CMDR.bit.TRX = 1; //Transmit mode
-//	I2caRegs.I2CMDR.bit.RM = 1;	// repeat
-//	I2caRegs.I2CMDR.bit.STT = 1;//start condition
-//
-//	while (I2caRegs.I2CMDR.bit.STT != 0) {} //detect start
-//
-//	I2caRegs.I2CSTR.bit.ARDY = 1;
-//	I2caRegs.I2CDXR = regAddr;	//send reg to read
-//	while (I2caRegs.I2CSTR.bit.ARDY != 1) {}
-//
-//	//I2caRegs.I2CMDR.bit.STP = 1;//stop condition
-//
-//
-//
-//	I2caRegs.I2CMDR.bit.TRX = 0; //Receiver mode
-//	I2caRegs.I2CMDR.bit.STT = 1;//start condition
-//
-//	while(I2caRegs.I2CMDR.bit.STT != 0) {} // Detect a start
-//
-//	I2caRegs.I2CMDR.bit.RM = 0;	// repeat off
-//	I2caRegs.I2CCNT = length; //this will do an nack when 0
-//
-//	for (i=0; i <length; i++)
-//	{
-//		if(I2caRegs.I2CSTR.bit.NACK != 0)
+//		for(i = 0; i<length; i++)
 //		{
-//			I2caRegs.I2CSTR.bit.NACK = 1;
+//			d++;
+//			Read_SPI(d);
 //		}
-//		while (I2caRegs.I2CSTR.bit.RRDY != 1) {}
-//		d[i] = I2caRegs.I2CDRR;
 //	}
 //
-//	while(I2caRegs.I2CSTR.bit.NACK != 0); // Detect NACK
-//	I2caRegs.I2CSTR.bit.NACK = 1;
-//
-//	return i;
+//	SLAVEENSET();
+//	return true;
 //}
+
+char I2C_readBytes(unsigned char devAddr, unsigned char regAddr, unsigned int length, unsigned char *d)
+{
+	// Wait until the STP bit is cleared from any previous master communication.
+	// Clearing of this bit by the module is delayed until after the SCD bit is
+	// set. If this bit is not checked prior to initiating a new message, the
+	// I2C could get confused.
+
+	if (length == 0)
+	{
+		return 0;
+	}
+
+	int i;
+
+	// Setup slave address
+	I2caRegs.I2CSAR = devAddr;
+
+	// Check if bus busy
+	while (I2caRegs.I2CSTR.bit.BB == 1)
+	{
+		I2caRegs.I2CMDR.bit.IRS = 0;
+		I2caRegs.I2CMDR.bit.IRS = 1;
+	}
+
+	I2caRegs.I2CMDR.bit.MST = 1;
+	I2caRegs.I2CMDR.bit.TRX = 1; //Transmit mode
+	I2caRegs.I2CMDR.bit.RM = 1;	// repeat
+	I2caRegs.I2CMDR.bit.STT = 1;//start condition
+
+	while (I2caRegs.I2CMDR.bit.STT != 0) {} //detect start
+
+	I2caRegs.I2CSTR.bit.ARDY = 1;
+	I2caRegs.I2CDXR = regAddr;	//send reg to read
+	while (I2caRegs.I2CSTR.bit.ARDY != 1) {}
+
+	//I2caRegs.I2CMDR.bit.STP = 1;//stop condition
+
+
+
+	I2caRegs.I2CMDR.bit.TRX = 0; //Receiver mode
+	I2caRegs.I2CMDR.bit.STT = 1;//start condition
+
+	while(I2caRegs.I2CMDR.bit.STT != 0) {} // Detect a start
+
+	I2caRegs.I2CMDR.bit.RM = 0;	// repeat off
+	I2caRegs.I2CCNT = length; //this will do an nack when 0
+
+	for (i=0; i <length; i++)
+	{
+		if(I2caRegs.I2CSTR.bit.NACK != 0)
+		{
+			I2caRegs.I2CSTR.bit.NACK = 1;
+		}
+		while (I2caRegs.I2CSTR.bit.RRDY != 1) {}
+		d[i] = I2caRegs.I2CDRR;
+	}
+
+	while(I2caRegs.I2CSTR.bit.NACK != 0); // Detect NACK
+	I2caRegs.I2CSTR.bit.NACK = 1;
+
+	I2caRegs.I2CMDR.bit.STP = 1;		//stop condition
+
+	while (I2caRegs.I2CMDR.bit.STP != 0) {}
+	while(I2caRegs.I2CSTR.bit.SCD != 1) {}
+	I2caRegs.I2CSTR.bit.SCD = 1; // Clear stop condition
+
+	I2caRegs.I2CMDR.bit.RM = 0;	// NO repeat
+
+	return i;
+}
 
 
 unsigned char I2C_writeBit(unsigned char devAddr, unsigned char regAddr, unsigned char bitNum, unsigned char d)
@@ -182,75 +196,75 @@ unsigned char I2C_writeByte(unsigned char devAddr, unsigned char regAddr, unsign
 }
 
 
-unsigned char I2C_writeBytes(unsigned char devAddr, unsigned char regAddr, unsigned int length, unsigned char *d)
-{
-	int i;
-	SLAVEENCLEAR();
-	Send_SPI(&regAddr);
-	Send_SPI(d);
-	length--;
-
-	for(i = 0; i<length; i++)
-	{
-		d++;
-		Send_SPI(d);
-	}
-
-	SLAVEENSET();
-	return true;
-
-}
-
 //unsigned char I2C_writeBytes(unsigned char devAddr, unsigned char regAddr, unsigned int length, unsigned char *d)
 //{
-//	// Wait until the STP bit is cleared from any previous master communication.
-//	// Clearing of this bit by the module is delayed until after the SCD bit is
-//	// set. If this bit is not checked prior to initiating a new message, the
-//	// I2C could get confused.
 //	int i;
+//	SLAVEENCLEAR();
+//	Send_SPI(&regAddr);
+//	Send_SPI(d);
+//	length--;
 //
-//	while (I2caRegs.I2CSTR.bit.BB == 1)
+//	for(i = 0; i<length; i++)
 //	{
-//		I2caRegs.I2CMDR.bit.IRS = 0;
-//		I2caRegs.I2CMDR.bit.IRS = 1;
+//		d++;
+//		Send_SPI(d);
 //	}
 //
-//	// Setup slave address
-//	I2caRegs.I2CSAR = devAddr;
+//	SLAVEENSET();
+//	return true;
 //
-//	I2caRegs.I2CMDR.bit.MST = 1;
-//	I2caRegs.I2CMDR.bit.TRX = 1; //Transmitter mode
-//	I2caRegs.I2CMDR.bit.RM = 1;	// repeat
-//	I2caRegs.I2CMDR.bit.STT = 1;//start condition
-//
-//	while(I2caRegs.I2CMDR.bit.STT != 0) {} // Detect a start
-//
-//	I2caRegs.I2CSTR.bit.ARDY = 1;
-//	I2caRegs.I2CDXR = regAddr;	//send reg to write to
-//	while (I2caRegs.I2CSTR.bit.ARDY != 1) {}
-//
-//	for (i=0; i < length; i++)
-//	{
-//		I2caRegs.I2CSTR.bit.ARDY = 1;
-//		I2caRegs.I2CDXR = d[i];
-//		while (I2caRegs.I2CSTR.bit.ARDY != 1) {}
-//	}
-//
-//	while (I2caRegs.I2CSTR.bit.NACK == 1) // Clear if NACK received
-//	{
-//		I2caRegs.I2CSTR.bit.NACK = 1;
-//	}
-//
-//	I2caRegs.I2CMDR.bit.STP = 1;		//stop condition
-//
-//	while (I2caRegs.I2CMDR.bit.STP != 0) {}
-//	while(I2caRegs.I2CSTR.bit.SCD != 1) {}
-//	I2caRegs.I2CSTR.bit.SCD = 1; // Clear stop condition
-//
-//	I2caRegs.I2CMDR.bit.RM = 0;	// NO repeat
-//
-//	return i;
 //}
+
+unsigned char I2C_writeBytes(unsigned char devAddr, unsigned char regAddr, unsigned int length, unsigned char *d)
+{
+	// Wait until the STP bit is cleared from any previous master communication.
+	// Clearing of this bit by the module is delayed until after the SCD bit is
+	// set. If this bit is not checked prior to initiating a new message, the
+	// I2C could get confused.
+	int i;
+
+	while (I2caRegs.I2CSTR.bit.BB == 1)
+	{
+		I2caRegs.I2CMDR.bit.IRS = 0;
+		I2caRegs.I2CMDR.bit.IRS = 1;
+	}
+
+	// Setup slave address
+	I2caRegs.I2CSAR = devAddr;
+
+	I2caRegs.I2CMDR.bit.MST = 1;
+	I2caRegs.I2CMDR.bit.TRX = 1; //Transmitter mode
+	I2caRegs.I2CMDR.bit.RM = 1;	// repeat
+	I2caRegs.I2CMDR.bit.STT = 1;//start condition
+
+	while(I2caRegs.I2CMDR.bit.STT != 0) {} // Detect a start
+
+	I2caRegs.I2CSTR.bit.ARDY = 1;
+	I2caRegs.I2CDXR = regAddr;	//send reg to write to
+	while (I2caRegs.I2CSTR.bit.ARDY != 1) {}
+
+	for (i=0; i < length; i++)
+	{
+		I2caRegs.I2CSTR.bit.ARDY = 1;
+		I2caRegs.I2CDXR = d[i];
+		while (I2caRegs.I2CSTR.bit.ARDY != 1) {}
+	}
+
+	while (I2caRegs.I2CSTR.bit.NACK == 1) // Clear if NACK received
+	{
+		I2caRegs.I2CSTR.bit.NACK = 1;
+	}
+
+	I2caRegs.I2CMDR.bit.STP = 1;		//stop condition
+
+	while (I2caRegs.I2CMDR.bit.STP != 0) {}
+	while(I2caRegs.I2CSTR.bit.SCD != 1) {}
+	I2caRegs.I2CSTR.bit.SCD = 1; // Clear stop condition
+
+	I2caRegs.I2CMDR.bit.RM = 0;	// NO repeat
+
+	return i;
+}
 
 unsigned char I2C_writeWord(unsigned char devAddr, unsigned char regAddr, unsigned int d)
 {

@@ -16,9 +16,15 @@
 
 unsigned int fifoCount;
 
+
+
 stopwatch_struct* conv_watch;
+stopwatch_struct* conv_timer;
+
 ops_struct ops_temp;
 data_struct data_temp;
+
+extern unsigned char devAddr;
 
 extern unsigned char fifoBuffer[128];
 
@@ -57,15 +63,21 @@ void SensorCovInit()
 	GpioCtrlRegs.GPAPUD.bit.GPIO15 = 1; 		//disable pull up
 	EDIS;
 
-	GPS_setup();
+//	spi_fifo_init();
+//	SpiGpio();
 
-	spi_fifo_init();
-	SpiGpio();
+	I2CA_Init();
+
+	devAddr = MPU6050_DEFAULT_ADDRESS;
+
+	mpu_reset();
 	int id = getDeviceID();
+	setSleepEnabled(false);
 	char status = dmpInitialize();
+	//setClockSource(MPU6050_CLOCK_PLL_XGYRO);
 
-    //setFullScaleGyroRange(MPU6050_GYRO_FS_250);
-    //setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
+    setFullScaleGyroRange(MPU6050_GYRO_FS_250);
+    setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
 
 
 //    setXGyroOffset(-3500);
@@ -89,7 +101,7 @@ void SensorCovInit()
 	//CONFIG 12V SWITCH
 	Config12V();
 	conv_watch = StartStopWatch(50000);
-
+	conv_timer = StartStopWatch(50);
 }
 
 
@@ -102,19 +114,27 @@ void LatchStruct()
 
 void SensorCovMeasure()
 {
-
+	unsigned char mpuIntStatus;
 	//todo USER: Sensor Conversion
 	//update data_temp and ops_temp
 	//use stopwatch to catch timeouts
 	//waiting should poll isStopWatchComplete() to catch timeout and throw StopWatchError
-	GPS_parse();
-	unsigned char mpuIntStatus = getIntStatus();
+
+	if(isStopWatchComplete(conv_timer) == 0)
+	{
+		return;
+	}
+
+
+	StopWatchRestart(conv_timer);
+
+	mpuIntStatus = getIntStatus();
 	fifoCount = getFIFOCount();
 
 	getMotion6(&data_temp.ax, &data_temp.ay, &data_temp.az, &data_temp.gx, &data_temp.gy, &data_temp.gz);
 	if(fifoCount >= packetSize)
 	{
-		if (fifoCount == 1024)
+		if (fifoCount >= 1024)
 		{
 			// reset so we can continue cleanly
 			resetFIFO();
@@ -136,48 +156,6 @@ void SensorCovMeasure()
 		}
 	}
 
-#define adc_ratio(x)	(((double)x)/(4096.0))
-#define r_inf		(double)0.12885174498
-#define B			(double)3375
-#define r2  		(double)1470 //resistor before adc
-#define r1			(double)1820 //resistor after adc
-		double temp;
-
-
-	readADC();
-
-
-
-	//Controller cool side
-	//thermistor
-	temp = r1*(1/((1/adc_ratio(B0RESULT))-1))-r2;
-	data_temp.post_controller.F32 = ((B)/(log((temp/r_inf)))) - 273.5;
-
-	//Ambient
-	//thermistor
-	temp = r1*(1/((1/adc_ratio(B1RESULT))-1))-r2;
-	data_temp.ambient.F32 = (B)/(log((temp/r_inf)))- 273.5;
-
-	//Rear break pressure
-	//Vout = ((.8*5)/3000) * P + .5
-	//P = ((Vout-.5)*3000)/(.8*5)
-	//Vm = (10/15.6)*Vout
-	//Vout = (15.6/10) *Vm
-	//Vm = ADC*QUANTA_TO_VOLT;
-	//kpa = P * 6.8947
-	temp = B2RESULT * QUANTA_TO_VOLT; 				//Vm
-	temp = temp * (15.6/10); 						//Vout
-	temp = ((temp-.5)*3000)/(4); 					// Psi
-	data_temp.break_pressure.F32 = temp ;
-
-	if (isStopWatchComplete(conv_watch) == 1)
-	{
-		ops_temp.Flags.bit.cov_error = 1;
-	}
-	else
-	{
-		ops_temp.Flags.bit.cov_error = 0;
-	}
 
 }
 

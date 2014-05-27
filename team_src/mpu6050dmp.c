@@ -211,6 +211,10 @@ unsigned char dmpInitialize()
 
             unsigned int fifoCount = getFIFOCount();
 
+            if (fifoCount > 128)
+            {
+            	fifoCount = 128;
+            }
 
             getFIFOBytes(fifoBuffer, fifoCount);
 
