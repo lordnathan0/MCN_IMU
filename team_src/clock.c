@@ -49,17 +49,17 @@ __interrupt void INT13_ISR(void)     // INT13 or CPU-Timer1
 	Clock_Ticks.HeartBeat++;
 	Clock_Ticks.Temp++;
 
-	if (Clock_Ticks.GPS >= GPS_TICKS)
-	{
-		//send data or fill data
-
-		SendCAN(ALT_ACCR_BOX);
-		SendCAN(LAT_VAL_BOX	);
-		SendCAN(LONG_BOX);
-		SendCAN(GPS_SPEED_BOX);
-
-		Clock_Ticks.GPS = 0;
-	}
+//	if (Clock_Ticks.GPS >= GPS_TICKS)
+//	{
+//		//send data or fill data
+//
+////		SendCAN(ALT_ACCR_BOX);
+////		SendCAN(LAT_VAL_BOX	);
+////		SendCAN(LONG_BOX);
+////		SendCAN(GPS_SPEED_BOX);
+//
+//		Clock_Ticks.GPS = 0;
+//	}
 
 	if(Clock_Ticks.IMU <= IMU_TICKS)
 	{
@@ -74,14 +74,14 @@ __interrupt void INT13_ISR(void)     // INT13 or CPU-Timer1
 		Clock_Ticks.IMU = 0;
 	}
 
-	if(Clock_Ticks.Temp <= TEMP_TICKS)
-	{
-		SendCAN(POST_CON_BOX);
-		SendCAN(AMBIENT_BOX);
-		SendCAN(R_BRAKE_PRESSURE_BOX);
-
-		Clock_Ticks.Temp = 0;
-	}
+//	if(Clock_Ticks.Temp <= TEMP_TICKS)
+//	{
+//		SendCAN(POST_CON_BOX);
+//		SendCAN(AMBIENT_BOX);
+//		SendCAN(R_BRAKE_PRESSURE_BOX);
+//
+//		Clock_Ticks.Temp = 0;
+//	}
 
 	if (Clock_Ticks.HeartBeat >= HEARTBEAT_TICKS)
 	{

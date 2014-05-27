@@ -33,7 +33,7 @@ void ClearMailBoxes();
 #define COMMAND_ID 		0xA1
 #define COMMAND_BOX 	0
 
-#define HEARTBEAT_ID 	0x23
+#define HEARTBEAT_ID 	0x41
 #define HEARTBEAT_BOX 	1
 
 #define CURRENT_TIME_ID 	0x10e
