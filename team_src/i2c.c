@@ -13,7 +13,7 @@ void I2CA_Init(void)
 {
    // Initialize I2C
 
-   I2caRegs.I2CPSC.all = 6;		    // Prescaler - need 7-12 Mhz on module clk
+   I2caRegs.I2CPSC.all = 10;		    // Prescaler - need 7-12 Mhz on module clk
    I2caRegs.I2CCLKL = 15;			// NOTE: must be non zero
    I2caRegs.I2CCLKH = 10;			// NOTE: must be non zero
    I2caRegs.I2CIER.all = 0;			// Disable SCD & ARDY interrupts
@@ -93,6 +93,8 @@ char I2C_readBytes(unsigned char devAddr, unsigned char regAddr, unsigned int le
 	// set. If this bit is not checked prior to initiating a new message, the
 	// I2C could get confused.
 
+	DINT;
+
 	if (length == 0)
 	{
 		return 0;
@@ -137,10 +139,13 @@ char I2C_readBytes(unsigned char devAddr, unsigned char regAddr, unsigned int le
 	{
 		if(I2caRegs.I2CSTR.bit.NACK != 0)
 		{
-			I2caRegs.I2CSTR.bit.NACK = 1;
+			i = length;
 		}
-		while (I2caRegs.I2CSTR.bit.RRDY != 1) {}
-		d[i] = I2caRegs.I2CDRR;
+		else
+		{
+			while (I2caRegs.I2CSTR.bit.RRDY != 1) {}
+			d[i] = I2caRegs.I2CDRR;
+		}
 	}
 
 	while(I2caRegs.I2CSTR.bit.NACK != 0); // Detect NACK
@@ -154,6 +159,7 @@ char I2C_readBytes(unsigned char devAddr, unsigned char regAddr, unsigned int le
 
 	I2caRegs.I2CMDR.bit.RM = 0;	// NO repeat
 
+	EINT;
 	return i;
 }
 

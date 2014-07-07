@@ -101,7 +101,7 @@ void SensorCovInit()
 	//CONFIG 12V SWITCH
 	Config12V();
 	conv_watch = StartStopWatch(50000);
-	conv_timer = StartStopWatch(50);
+	conv_timer = StartStopWatch(500);
 }
 
 
