@@ -12,8 +12,10 @@
 void init_pwm_servo()
 {
 
-    GpioCtrlRegs.GPAPUD.bit.GPIO0 = 1;    // Disable pull-up on GPIO0 (EPWM1A)
-    GpioCtrlRegs.GPAPUD.bit.GPIO1 = 1;    // Disable pull-up on GPIO1 (EPWM1B)
+	EALLOW;
+
+    GpioCtrlRegs.GPAPUD.bit.GPIO0 = 0;    // Disable pull-up on GPIO0 (EPWM1A)
+    GpioCtrlRegs.GPAPUD.bit.GPIO1 = 0;    // Disable pull-up on GPIO1 (EPWM1B)
 
 /* Configure EPWM-1 pins using GPIO regs*/
 // This specifies which of the possible GPIO pins will be EPWM1 functional pins.
@@ -42,11 +44,37 @@ void init_pwm_servo()
 	EPwm1Regs.AQCTLA.bit.CAU = AQ_CLEAR;
 	EPwm1Regs.AQCTLB.bit.ZRO = AQ_SET;
 	EPwm1Regs.AQCTLB.bit.CBU = AQ_CLEAR;
+
+    EDIS;
 }
 
 void set_pwm(float servo1, float servo2)
 {
 	// servo percent
-	EPwm1Regs.CMPA.half.CMPA = (int) (33 + 34*servo1);
-	EPwm1Regs.CMPB = (int) (33 + 34*servo2);
+	// 20 to 80
+	float t1;
+	float t2;
+	t1 = 20 + 60*servo1;
+	t2 = 20 + 60*servo2;
+
+	if (t1 > 80)
+	{
+		t1 = 80;
+	}
+	if (t1 < 20)
+	{
+		t1 = 20;
+	}
+
+	if (t2 > 80)
+	{
+		t2 = 80;
+	}
+	if (t2 < 20)
+	{
+		t2 = 20;
+	}
+
+	EPwm1Regs.CMPA.half.CMPA = (int) (t1);
+	EPwm1Regs.CMPB = (int) (t2);
 }
