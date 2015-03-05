@@ -24,6 +24,9 @@ stopwatch_struct* conv_timer;
 ops_struct ops_temp;
 data_struct data_temp;
 
+float s1;
+float s2;
+
 extern unsigned char devAddr;
 
 extern unsigned char fifoBuffer[128];
@@ -66,6 +69,10 @@ void SensorCovInit()
 //	spi_fifo_init();
 //	SpiGpio();
 
+	init_pwm_servo();
+	s1 = 0.5;
+	s2 = 0.5;
+
 	I2CA_Init();
 
 	devAddr = MPU6050_DEFAULT_ADDRESS;
@@ -86,6 +93,7 @@ void SensorCovInit()
 //    setZAccelOffset(914);
 //    setXAccelOffset(-980);
 //    setYAccelOffset(630);
+
 
 
 	adcinit();
@@ -115,6 +123,8 @@ void LatchStruct()
 void SensorCovMeasure()
 {
 	unsigned char mpuIntStatus;
+	set_pwm(s1, s2);
+
 	//todo USER: Sensor Conversion
 	//update data_temp and ops_temp
 	//use stopwatch to catch timeouts
