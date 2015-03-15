@@ -26,6 +26,8 @@ data_struct data_temp;
 
 float s1;
 float s2;
+float accelcov;
+float gyrocov;
 
 extern unsigned char devAddr;
 
@@ -83,7 +85,9 @@ void SensorCovInit()
 	char status = dmpInitialize();
 
     setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
+    accelcov = 1.0;
     setFullScaleAccelRange(MPU6050_ACCEL_FS_4);
+    gyrocov = 1.0;
 
 
 //    setXGyroOffset(-60);
@@ -93,12 +97,13 @@ void SensorCovInit()
 //   setXAccelOffset(0);
 //   setYAccelOffset(0);
 
-
-
-	adcinit();
-
-	//CONFIG GP_BUTTON
-	ConfigGPButton();
+//
+//
+//
+//	adcinit();
+//
+//	//CONFIG GP_BUTTON
+//	ConfigGPButton();
 
 	//CONFIG LEDS
 	//led 0
@@ -108,7 +113,7 @@ void SensorCovInit()
 	//CONFIG 12V SWITCH
 	Config12V();
 	conv_watch = StartStopWatch(50000);
-	conv_timer = StartStopWatch(50);
+	conv_timer = StartStopWatch(10);
 }
 
 
@@ -121,14 +126,15 @@ void LatchStruct()
 
 void SensorCovMeasure()
 {
+	int ax,ay,az,gx,gy,gz;
 	unsigned char mpuIntStatus;
 	set_pwm(s1, s2);
 
-	//todo USER: Sensor Conversion
-	//update data_temp and ops_temp
-	//use stopwatch to catch timeouts
-	//waiting should poll isStopWatchComplete() to catch timeout and throw StopWatchError
-
+//	//todo USER: Sensor Conversion
+//	//update data_temp and ops_temp
+//	//use stopwatch to catch timeouts
+//	//waiting should poll isStopWatchComplete() to catch timeout and throw StopWatchError
+//
 	if(isStopWatchComplete(conv_timer) == 0)
 	{
 		return;
@@ -140,7 +146,15 @@ void SensorCovMeasure()
 	mpuIntStatus = getIntStatus();
 	fifoCount = getFIFOCount();
 
-	getMotion6(&data_temp.ax, &data_temp.ay, &data_temp.az, &data_temp.gx, &data_temp.gy, &data_temp.gz);
+	getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+
+	data.ax.F32 = accelcov * ax;
+	data.ay.F32  = accelcov * ay;
+	data.az.F32  = accelcov * az;
+	data.gx.F32  = gyrocov * gx;
+	data.gy.F32  = gyrocov * gy;
+	data.gz.F32  = gyrocov * gz;
+
 	if(fifoCount >= packetSize)
 	{
 		if (fifoCount >= 1024)
@@ -157,9 +171,7 @@ void SensorCovMeasure()
 
 			getFIFOBytes(fifoBuffer, packetSize);
             dmpGetQuaternion(&data_temp.q, fifoBuffer);
-            dmpGetAccel(&data_temp.aa, fifoBuffer);
-            dmpGetGravity(&data_temp.gravity, &data_temp.q);
-            dmpGetYawPitchRoll(data_temp.ypr, &data_temp.q, &data_temp.gravity);
+            dmpGetYawPitchRoll(data_temp.ypr, &data_temp.q);
 			//probably not necessary
 			//fifoCount -= packetSize;
 		}

@@ -48,35 +48,14 @@ void ClearMailBoxes();
 #define LONG_ID				0x10c
 #define LONG_BOX			6
 
-#define ACCEL_ID			0x10F
-#define ACCEL_BOX			7
+#define XAxisIMU_ID			0x15E
+#define XAxisIMU_BOX			7
 
-#define GYRO_ID				0x110
-#define GYRO_BOX			8
+#define YAxisIMU_ID			0x15F
+#define YAxisIMU_BOX			8
 
-#define POST_CON_ID			0x108
-#define POST_CON_BOX		10
-
-#define AMBIENT_ID			0x10A
-#define AMBIENT_BOX			11
-
-#define R_BRAKE_PRESSURE_ID 	0x102
-#define R_BRAKE_PRESSURE_BOX 	12
-
-#define IMU1_ID 	0x113
-#define IMU1_BOX 	13
-
-#define IMU2_ID 	0x114
-#define IMU2_BOX 	14
-
-#define IMU3_ID 	0x115
-#define IMU3_BOX 	15
-
-#define IMU4_ID 	0x116
-#define IMU4_BOX 	16
-
-#define IMU5_ID 	0x117
-#define IMU5_BOX 	17
+#define ZAxisIMU_ID			0x160
+#define ZAxisIMU_BOX			9
 
 #define GPS_SPEED_ID	0x118
 #define GPS_SPEED_BOX 	18

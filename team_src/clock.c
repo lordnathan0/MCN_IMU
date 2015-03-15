@@ -47,7 +47,6 @@ __interrupt void INT13_ISR(void)     // INT13 or CPU-Timer1
 	Clock_Ticks.GPS++;
 	Clock_Ticks.IMU++;
 	Clock_Ticks.HeartBeat++;
-	Clock_Ticks.Temp++;
 
 //	if (Clock_Ticks.GPS >= GPS_TICKS)
 //	{
@@ -63,13 +62,9 @@ __interrupt void INT13_ISR(void)     // INT13 or CPU-Timer1
 
 	if(Clock_Ticks.IMU <= IMU_TICKS)
 	{
-		SendCAN(ACCEL_BOX);
-		SendCAN(GYRO_BOX);
-		SendCAN(IMU1_BOX);
-		SendCAN(IMU2_BOX);
-		SendCAN(IMU3_BOX);
-		SendCAN(IMU4_BOX);
-		SendCAN(IMU5_BOX);
+		SendCAN(XAxisIMU_BOX);
+		SendCAN(YAxisIMU_BOX);
+		SendCAN(ZAxisIMU_BOX);
 
 		Clock_Ticks.IMU = 0;
 	}

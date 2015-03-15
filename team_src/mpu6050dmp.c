@@ -102,7 +102,7 @@ unsigned char dmpGetGravity(VectorFloat *v, Quaternion *q)
     return 0;
 }
 
-unsigned char dmpGetYawPitchRoll(float *d, Quaternion *q, VectorFloat *gravity)
+unsigned char dmpGetYawPitchRoll(canfloat *d, Quaternion *q)
 {
 //    // yaw: (about Z axis)
 //    d[0] = atan2(2*q -> x*q -> y - 2*q -> w*q -> z, 2*q -> w*q -> w + 2*q -> x*q -> x - 1);
@@ -111,12 +111,12 @@ unsigned char dmpGetYawPitchRoll(float *d, Quaternion *q, VectorFloat *gravity)
 //    // roll: (tilt left/right, about X axis)
 //    d[2] = atan(gravity -> y / sqrt(gravity -> x*gravity -> x + gravity -> z*gravity -> z));
 
-   d[0] = atan2(2.0f * (q -> x * q -> y + q -> w * q -> z), q -> w * q -> w + q -> x * q -> x - q -> y * q -> y - q -> z * q -> z);
-   d[1] = -asin(2.0f * (q -> x * q -> z - q -> w * q -> y));
-   d[2] = atan2(2.0f * (q -> w * q -> x + q -> y * q -> z), q -> w * q -> w - q -> x * q -> x - q -> y * q -> y + q -> z * q -> z);
-   d[1] *= 180.0f / PI;
-   d[0] *= 180.0f / PI;
-   d[2] *= 180.0f / PI;
+   d[0].F32 = atan2(2.0f * (q -> x * q -> y + q -> w * q -> z), q -> w * q -> w + q -> x * q -> x - q -> y * q -> y - q -> z * q -> z);
+   d[1].F32 = -asin(2.0f * (q -> x * q -> z - q -> w * q -> y));
+   d[2].F32 = atan2(2.0f * (q -> w * q -> x + q -> y * q -> z), q -> w * q -> w - q -> x * q -> x - q -> y * q -> y + q -> z * q -> z);
+   d[1].F32 *= 180.0f / PI;
+   d[0].F32 *= 180.0f / PI;
+   d[2].F32 *= 180.0f / PI;
     return 0;
 }
 
