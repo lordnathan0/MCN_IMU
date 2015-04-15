@@ -16,7 +16,7 @@ nmeaGPGSV gsv;
 nmeaGPRMC rmc;
 nmeaGPVTG vtg;
 
-sci_struct GPS;
+extern sci_struct GPS;
 
 const char choose[] = "$PMTK314,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29\r\n"; //choose gga, rmc, vtg
 //const char choose[] = $PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28
@@ -27,12 +27,13 @@ const char freq[] = "$PMTK220, 200*2C\r\n";	// 5hz
 void GPS_setup()
 {
 	GPS_buffer_setup();
-	InitSciGpio();
-	GPS_fifo_init();
+	bb_setup();
+//	InitSciGpio();
+//	GPS_fifo_init();
 	GPS_Command();
-	PieCtrlRegs.PIEIER9.bit.INTx1=1;     // PIE Group 9, INT1
-	PieCtrlRegs.PIEIER9.bit.INTx2=1;     // PIE Group 9, INT2
-	IER |= M_INT9;
+//	PieCtrlRegs.PIEIER9.bit.INTx1=1;     // PIE Group 9, INT1
+//	PieCtrlRegs.PIEIER9.bit.INTx2=1;     // PIE Group 9, INT2
+//	IER |= M_INT9;
 }
 
 void GPS_Command()
@@ -140,8 +141,7 @@ void GPS_send(const char * c)
 	int i = 0;
 	while (c[i] != '\0')
 	{
-	    while (SciaRegs.SCICTL2.bit.TXRDY != 1) {}
-	    SciaRegs.SCITXBUF= c[i];
+		bb_send_char(c[i]);
 	    i++;
 	}
 }

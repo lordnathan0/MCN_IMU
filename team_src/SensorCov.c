@@ -24,8 +24,9 @@ stopwatch_struct* conv_timer;
 ops_struct ops_temp;
 data_struct data_temp;
 
-float s1;
+canfloat s1;
 float s2;
+float sicr;
 float accelcov;
 float gyrocov;
 
@@ -53,27 +54,12 @@ void SensorCovInit()
 {
 	//todo USER: SensorCovInit()
 
-	//set up mpu int pin
-//	EALLOW;
-//	GpioCtrlRegs.GPAMUX2.bit.GPIO23 = 0;         // GPIO
-//	GpioCtrlRegs.GPADIR.bit.GPIO23 = 0;          // input
-//	GpioCtrlRegs.GPAQSEL2.bit.GPIO23 = 0;        //Synch to SYSCLKOUT only
-//	GpioCtrlRegs.GPAPUD.bit.GPIO23 = 1; 		//disable pull up
-//	EDIS;
-//
-//	EALLOW;
-//	GpioCtrlRegs.GPAMUX1.bit.GPIO15 = 0;         // GPIO
-//	GpioCtrlRegs.GPADIR.bit.GPIO15 = 1;          // input
-//	GpioCtrlRegs.GPAQSEL1.bit.GPIO15 = 0;        //Synch to SYSCLKOUT only
-//	GpioCtrlRegs.GPAPUD.bit.GPIO15 = 1; 		//disable pull up
-//	EDIS;
-
-//	spi_fifo_init();
-//	SpiGpio();
 
 	init_pwm_servo();
-	s1 = 0.5;
+
+	s1.F32 = 0.5;
 	s2 = 0.5;
+	sicr = .0015;
 
 	I2CA_Init();
 
@@ -85,9 +71,9 @@ void SensorCovInit()
 	char status = dmpInitialize();
 
     setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
-    accelcov = 1.0;
+    accelcov = (2*2000)/65535.0;
     setFullScaleAccelRange(MPU6050_ACCEL_FS_4);
-    gyrocov = 1.0;
+    gyrocov = (2*4)/65535.0;
 
 
 //    setXGyroOffset(-60);
@@ -97,21 +83,7 @@ void SensorCovInit()
 //   setXAccelOffset(0);
 //   setYAccelOffset(0);
 
-//
-//
-//
-//	adcinit();
-//
-//	//CONFIG GP_BUTTON
-//	ConfigGPButton();
 
-	//CONFIG LEDS
-	//led 0
-	ConfigLED0();
-	//led 1
-	ConfigLED1();
-	//CONFIG 12V SWITCH
-	Config12V();
 	conv_watch = StartStopWatch(50000);
 	conv_timer = StartStopWatch(10);
 }
@@ -128,18 +100,32 @@ void SensorCovMeasure()
 {
 	int ax,ay,az,gx,gy,gz;
 	unsigned char mpuIntStatus;
-	set_pwm(s1, s2);
+
 
 //	//todo USER: Sensor Conversion
 //	//update data_temp and ops_temp
 //	//use stopwatch to catch timeouts
 //	//waiting should poll isStopWatchComplete() to catch timeout and throw StopWatchError
 //
+	GPS_parse();
+
 	if(isStopWatchComplete(conv_timer) == 0)
 	{
 		return;
 	}
 
+
+	if (s1.F32 >= 0.9 || s1.F32 <= 0.1 )
+	{
+		sicr = sicr * -1;
+	}
+
+
+	s1.F32 = s1.F32 + sicr;
+	s2 = s2 + sicr;
+
+
+	set_pwm(s1.F32, s2);
 
 	StopWatchRestart(conv_timer);
 

@@ -13,7 +13,7 @@ Uint16 MesgID = 0x22;
 int main(void)
 {
 	StartUp();
-	//BootISRSetup();
+	//BootISRSetup(); //WARNING THIS WILL MESS UP THE BITBANG SERIAL!
 	//PowerDownISRSetup();
 	ops.State = STATE_INIT;
 	while(1)
@@ -112,13 +112,6 @@ void Restart()
 }
 
 
-// INT1.4
-__interrupt void  XINT1_ISR(void)
-{
-	// Insert ISR Code here
-	Boot(MesgID);
-	// To receive more interrupts from this PIE group, acknowledge this interrupt
-	PieCtrlRegs.PIEACK.all = PIEACK_GROUP1;
-}
+
 
 

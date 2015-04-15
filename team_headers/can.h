@@ -33,19 +33,19 @@ void ClearMailBoxes();
 #define COMMAND_ID 		0xA1
 #define COMMAND_BOX 	0
 
-#define HEARTBEAT_ID 	0x41
+#define HEARTBEAT_ID 	353
 #define HEARTBEAT_BOX 	1
 
-#define CURRENT_TIME_ID 	0x10e
+#define CURRENT_TIME_ID 	354
 #define CURRENT_TIME_BOX	3
 
-#define ALT_ACCR_ID			0x10d
+#define ALT_ACCR_ID			355
 #define ALT_ACCR_BOX		4
 
-#define LAT_VAL_ID			0x10b
+#define LAT_VAL_ID			356
 #define LAT_VAL_BOX			5
 
-#define LONG_ID				0x10c
+#define LONG_ID				357
 #define LONG_BOX			6
 
 #define XAxisIMU_ID			0x15E
@@ -57,7 +57,7 @@ void ClearMailBoxes();
 #define ZAxisIMU_ID			0x160
 #define ZAxisIMU_BOX			9
 
-#define GPS_SPEED_ID	0x118
+#define GPS_SPEED_ID	358
 #define GPS_SPEED_BOX 	18
 
 
