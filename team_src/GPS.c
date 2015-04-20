@@ -16,7 +16,7 @@ nmeaGPGSV gsv;
 nmeaGPRMC rmc;
 nmeaGPVTG vtg;
 
-sci_struct GPS;
+extern sci_struct GPS;
 
 const char choose[] = "$PMTK314,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29\r\n"; //choose gga, rmc, vtg
 //const char choose[] = $PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28
@@ -27,12 +27,13 @@ const char freq[] = "$PMTK220, 200*2C\r\n";	// 5hz
 void GPS_setup()
 {
 	GPS_buffer_setup();
-	InitSciGpio();
-	GPS_fifo_init();
+	bb_setup();
+//	InitSciGpio();
+//	GPS_fifo_init();
 	GPS_Command();
-	PieCtrlRegs.PIEIER9.bit.INTx1=1;     // PIE Group 9, INT1
-	PieCtrlRegs.PIEIER9.bit.INTx2=1;     // PIE Group 9, INT2
-	IER |= M_INT9;
+//	PieCtrlRegs.PIEIER9.bit.INTx1=1;     // PIE Group 9, INT1
+//	PieCtrlRegs.PIEIER9.bit.INTx2=1;     // PIE Group 9, INT2
+//	IER |= M_INT9;
 }
 
 void GPS_Command()
@@ -79,20 +80,32 @@ void GPS_Choose()
 	switch(nmea_pack_type((const char *)GPS.gps,GPS.length))
 	{
 	case GPGGA:
-		memcpy(GPS.gps_sentence[0],GPS.gps, sizeof(char)*GPS.length);
-		GPS.gps_complete[0] = 1;
+		if (GPS.gps_complete[0] == 0)
+		{
+			memcpy(GPS.gps_sentence[0],GPS.gps, sizeof(char)*GPS.length);
+			GPS.sentence_length[0] = GPS.length;
+			GPS.gps_complete[0] = 1;
+		}
 		break;
 	case GPGSA:
 		break;
 	case GPGSV:
 		break;
-	case GPRMC: //not useful data
-		memcpy(GPS.gps_sentence[1],GPS.gps, sizeof(char)*GPS.length);
-		GPS.gps_complete[1] = 1;
+	case GPRMC:
+		if (GPS.gps_complete[1] == 0)
+		{
+			memcpy(GPS.gps_sentence[1],GPS.gps, sizeof(char)*GPS.length);
+			GPS.sentence_length[1] = GPS.length;
+			GPS.gps_complete[1] = 1;
+		}
 		break;
 	case GPVTG:
-		memcpy(GPS.gps_sentence[2],GPS.gps, sizeof(char)*GPS.length);
-		GPS.gps_complete[2] = 1;
+		if (GPS.gps_complete[2] == 0)
+		{
+			memcpy(GPS.gps_sentence[2],GPS.gps, sizeof(char)*GPS.length);
+			GPS.sentence_length[2] = GPS.length;
+			GPS.gps_complete[2] = 1;
+		}
 		break;
 	default:
 		break;
@@ -108,24 +121,34 @@ void GPS_parse()
 			switch(nmea_pack_type((const char *)GPS.gps_sentence[i],GPS.sentence_length[i]))
 			{
 			case GPGGA:
-				nmea_parse_GPGGA((const char *)GPS.gps_sentence[i],GPS.sentence_length[i], &gga);
-				nmea_GPGGA2info(&gga, &GPS.gps_info);
+				if(nmea_parse_GPGGA((const char *)GPS.gps_sentence[i],GPS.sentence_length[i], &gga))
+				{
+					nmea_GPGGA2info(&gga, &GPS.gps_info);
+				}
 				break;
 			case GPGSA:
-				nmea_parse_GPGSA((const char *)GPS.gps_sentence[i],GPS.sentence_length[i], &gsa);
-				nmea_GPGSA2info(&gsa, &GPS.gps_info);
+				if(nmea_parse_GPGSA((const char *)GPS.gps_sentence[i],GPS.sentence_length[i], &gsa))
+				{
+					nmea_GPGSA2info(&gsa, &GPS.gps_info);
+				}
 				break;
 			case GPGSV:
-				nmea_parse_GPGSV((const char *)GPS.gps_sentence[i],GPS.sentence_length[i],  &gsv);
-				nmea_GPGSV2info(&gsv, &GPS.gps_info);
+				if(nmea_parse_GPGSV((const char *)GPS.gps_sentence[i],GPS.sentence_length[i],  &gsv))
+				{
+					nmea_GPGSV2info(&gsv, &GPS.gps_info);
+				}
 				break;
 			case GPRMC: //not useful data
-				nmea_parse_GPRMC((const char *)GPS.gps_sentence[i],GPS.sentence_length[i],  &rmc);
-				nmea_GPRMC2info(&rmc, &GPS.gps_info);
+				if(nmea_parse_GPRMC((const char *)GPS.gps_sentence[i],GPS.sentence_length[i],  &rmc))
+				{
+					nmea_GPRMC2info(&rmc, &GPS.gps_info);
+				}
 				break;
 			case GPVTG:
-				nmea_parse_GPVTG((const char *)GPS.gps_sentence[i],GPS.sentence_length[i],  &vtg);
-				nmea_GPVTG2info(&vtg, &GPS.gps_info);
+				if(nmea_parse_GPVTG((const char *)GPS.gps_sentence[i],GPS.sentence_length[i],  &vtg))
+				{
+					nmea_GPVTG2info(&vtg, &GPS.gps_info);
+				}
 				break;
 			default:
 				break;
@@ -140,8 +163,7 @@ void GPS_send(const char * c)
 	int i = 0;
 	while (c[i] != '\0')
 	{
-	    while (SciaRegs.SCICTL2.bit.TXRDY != 1) {}
-	    SciaRegs.SCITXBUF= c[i];
+		bb_send_char(c[i]);
 	    i++;
 	}
 }

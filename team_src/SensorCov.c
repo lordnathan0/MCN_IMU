@@ -24,12 +24,39 @@ stopwatch_struct* conv_timer;
 ops_struct ops_temp;
 data_struct data_temp;
 
+canfloat s1;
+float s2;
+float sicr;
+float accelcov;
+float gyrocov;
+
+int wdcount;
 extern unsigned char devAddr;
 
 extern unsigned char fifoBuffer[128];
+extern sci_struct GPS;
 
 #define 	packetSize 		42
 #define		MPUINT()		GpioDataRegs.GPADAT.bit.GPIO23
+
+void MPU_cov();
+void MPU_setup();
+
+void enablewatchdog()
+{
+		wdcount = 0;
+	   EALLOW;
+	   SysCtrlRegs.WDKEY = 0x55;                // Clear the WD counter
+	   SysCtrlRegs.WDKEY = 0xAA;
+	   SysCtrlRegs.WDCR = 0x0047;               // Enable watchdog module
+	   SysCtrlRegs.SCSR = 0x02;					// watchdog is set up to cause isr
+
+	   PieCtrlRegs.PIEIER1.bit.INTx8 = 1;          // Enable PIE Group 1 INT4
+	   IFR &= ~M_INT1;
+	   IER |= M_INT1;
+
+	   EDIS;
+}
 
 void SensorCov()
 {
@@ -46,62 +73,24 @@ void SensorCov()
 
 void SensorCovInit()
 {
+	ConfigLED0();
+	ConfigLED1();
 	//todo USER: SensorCovInit()
 
-	//set up mpu int pin
-	EALLOW;
-	GpioCtrlRegs.GPAMUX2.bit.GPIO23 = 0;         // GPIO
-	GpioCtrlRegs.GPADIR.bit.GPIO23 = 0;          // input
-	GpioCtrlRegs.GPAQSEL2.bit.GPIO23 = 0;        //Synch to SYSCLKOUT only
-	GpioCtrlRegs.GPAPUD.bit.GPIO23 = 1; 		//disable pull up
-	EDIS;
 
-	EALLOW;
-	GpioCtrlRegs.GPAMUX1.bit.GPIO15 = 0;         // GPIO
-	GpioCtrlRegs.GPADIR.bit.GPIO15 = 1;          // input
-	GpioCtrlRegs.GPAQSEL1.bit.GPIO15 = 0;        //Synch to SYSCLKOUT only
-	GpioCtrlRegs.GPAPUD.bit.GPIO15 = 1; 		//disable pull up
-	EDIS;
+	//init_pwm_servo();
 
-//	spi_fifo_init();
-//	SpiGpio();
+	s1.F32 = 0.5;
+	s2 = 0.5;
+	sicr = .0015;
 
-	I2CA_Init();
-
-	devAddr = MPU6050_DEFAULT_ADDRESS;
-
-	mpu_reset();
-	int id = getDeviceID();
-	setSleepEnabled(false);
-	char status = dmpInitialize();
-	//setClockSource(MPU6050_CLOCK_PLL_XGYRO);
-
-    setFullScaleGyroRange(MPU6050_GYRO_FS_250);
-    setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
+	MPU_setup();
+	GPS_setup();
 
 
-//    setXGyroOffset(-3500);
-//    setYGyroOffset(-365);
-//    setZGyroOffset(210);
-//    setZAccelOffset(914);
-//    setXAccelOffset(-980);
-//    setYAccelOffset(630);
-
-
-	adcinit();
-
-	//CONFIG GP_BUTTON
-	ConfigGPButton();
-
-	//CONFIG LEDS
-	//led 0
-	ConfigLED0();
-	//led 1
-	ConfigLED1();
-	//CONFIG 12V SWITCH
-	Config12V();
 	conv_watch = StartStopWatch(50000);
-	conv_timer = StartStopWatch(500);
+	conv_timer = StartStopWatch(10);
+	enablewatchdog();
 }
 
 
@@ -114,11 +103,17 @@ void LatchStruct()
 
 void SensorCovMeasure()
 {
-	unsigned char mpuIntStatus;
-	//todo USER: Sensor Conversion
-	//update data_temp and ops_temp
-	//use stopwatch to catch timeouts
-	//waiting should poll isStopWatchComplete() to catch timeout and throw StopWatchError
+
+
+
+//	//todo USER: Sensor Conversion
+//	//update data_temp and ops_temp
+//	//use stopwatch to catch timeouts
+//	//waiting should poll isStopWatchComplete() to catch timeout and throw StopWatchError
+//
+	wdcount = 0;
+	ServiceDog();
+	GPS_parse();
 
 	if(isStopWatchComplete(conv_timer) == 0)
 	{
@@ -126,35 +121,24 @@ void SensorCovMeasure()
 	}
 
 
+//	if (s1.F32 >= 0.9 || s1.F32 <= 0.1 )
+//	{
+//		sicr = sicr * -1;
+//	}
+//
+//
+//	s1.F32 = s1.F32 + sicr;
+//	s2 = s2 + sicr;
+//
+//
+//	set_pwm(s1.F32, s2);
+
+	SETLED0();
+	MPU_cov();
+	CLEARLED0();
+
 	StopWatchRestart(conv_timer);
 
-	mpuIntStatus = getIntStatus();
-	fifoCount = getFIFOCount();
-
-	getMotion6(&data_temp.ax, &data_temp.ay, &data_temp.az, &data_temp.gx, &data_temp.gy, &data_temp.gz);
-	if(fifoCount >= packetSize)
-	{
-		if (fifoCount >= 1024)
-		{
-			// reset so we can continue cleanly
-			resetFIFO();
-		}
-		else if (mpuIntStatus & 1)
-		{
-			// wait for correct available data length, should be a VERY short wait
-			while (fifoCount < packetSize) fifoCount = getFIFOCount();
-
-			StopWatchRestart(conv_watch);
-
-			getFIFOBytes(fifoBuffer, packetSize);
-            dmpGetQuaternion(&data_temp.q, fifoBuffer);
-            dmpGetAccel(&data_temp.aa, fifoBuffer);
-            dmpGetGravity(&data_temp.gravity, &data_temp.q);
-            dmpGetYawPitchRoll(data_temp.ypr, &data_temp.q, &data_temp.gravity);
-			//probably not necessary
-			//fifoCount -= packetSize;
-		}
-	}
 
 
 }
@@ -187,4 +171,79 @@ void SensorCovDeInit()
 {
 	//todo USER: SensorCovDeInit()
 
+}
+
+void MPU_cov()
+{
+	int ax,ay,az,gx,gy,gz;
+	unsigned char mpuIntStatus;
+	mpuIntStatus = getIntStatus();
+	fifoCount = getFIFOCount();
+
+	getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+
+	data_temp.ax.F32 = accelcov * ax;
+	data_temp.ay.F32  = accelcov * ay;
+	data_temp.az.F32  = accelcov * az;
+	data_temp.gx.F32  = gyrocov * gx;
+	data_temp.gy.F32  = gyrocov * gy;
+	data_temp.gz.F32  = gyrocov * gz;
+
+	if(fifoCount >= packetSize)
+	{
+		if (fifoCount >= 1024)
+		{
+			// reset so we can continue cleanly
+			resetFIFO();
+		}
+		else if (mpuIntStatus & 1)
+		{
+			// wait for correct available data length, should be a VERY short wait
+			while (fifoCount < packetSize) fifoCount = getFIFOCount();
+
+			StopWatchRestart(conv_watch);
+
+			getFIFOBytes(fifoBuffer, packetSize);
+            dmpGetQuaternion(&data_temp.q, fifoBuffer);
+            dmpGetYawPitchRoll(data_temp.ypr, &data_temp.q);
+			//probably not necessary
+			//fifoCount -= packetSize;
+		}
+	}
+}
+
+void MPU_setup()
+{
+	I2CA_Init();
+
+	devAddr = MPU6050_DEFAULT_ADDRESS;
+
+	mpu_reset();
+	int id = getDeviceID();
+	setSleepEnabled(false);
+	char status = dmpInitialize();
+
+    setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
+    accelcov = (2000)/32767.0;
+    setFullScaleAccelRange(MPU6050_ACCEL_FS_4);
+    gyrocov = (4)/32767.0;
+
+
+//    setXGyroOffset(-60);
+//    setYGyroOffset(-30);
+//    setZGyroOffset(-35);
+//    setZAccelOffset(0);
+//   setXAccelOffset(0);
+//   setYAccelOffset(0);
+}
+
+// INT1.8
+__interrupt void  WAKEINT_ISR(void)    // WD, LOW Power
+{
+  if(wdcount > 1000)
+  {
+	  Restart();
+  }
+  wdcount++;
+  PieCtrlRegs.PIEACK.all = PIEACK_GROUP1;
 }

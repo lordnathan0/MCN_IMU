@@ -47,48 +47,36 @@ __interrupt void INT13_ISR(void)     // INT13 or CPU-Timer1
 	Clock_Ticks.GPS++;
 	Clock_Ticks.IMU++;
 	Clock_Ticks.HeartBeat++;
-	Clock_Ticks.Temp++;
 
-//	if (Clock_Ticks.GPS >= GPS_TICKS)
-//	{
-//		//send data or fill data
-//
-////		SendCAN(ALT_ACCR_BOX);
-////		SendCAN(LAT_VAL_BOX	);
-////		SendCAN(LONG_BOX);
-////		SendCAN(GPS_SPEED_BOX);
-//
-//		Clock_Ticks.GPS = 0;
-//	}
-
-	if(Clock_Ticks.IMU <= IMU_TICKS)
+	if (Clock_Ticks.GPS >= GPS_TICKS)
 	{
-		SendCAN(ACCEL_BOX);
-		SendCAN(GYRO_BOX);
-		SendCAN(IMU1_BOX);
-		SendCAN(IMU2_BOX);
-		SendCAN(IMU3_BOX);
-		SendCAN(IMU4_BOX);
-		SendCAN(IMU5_BOX);
+		//send data or fill data
+
+		SendCAN(ALT_ACCR_BOX);
+		SendCAN(LAT_VAL_BOX	);
+		SendCAN(LONG_BOX);
+		SendCAN(GPS_SPEED_BOX);
+
+		Clock_Ticks.GPS = 0;
+	}
+
+	if(Clock_Ticks.IMU >= IMU_TICKS)
+	{
+		SendCAN(XAxisIMU_BOX);
+		SendCAN(YAxisIMU_BOX);
+		SendCAN(ZAxisIMU_BOX);
+		SendCAN(10); //testing
 
 		Clock_Ticks.IMU = 0;
 	}
 
-//	if(Clock_Ticks.Temp <= TEMP_TICKS)
-//	{
-//		SendCAN(POST_CON_BOX);
-//		SendCAN(AMBIENT_BOX);
-//		SendCAN(R_BRAKE_PRESSURE_BOX);
-//
-//		Clock_Ticks.Temp = 0;
-//	}
 
 	if (Clock_Ticks.HeartBeat >= HEARTBEAT_TICKS)
 	{
 		//BUS_OFF();
 		HeartBeat();
 		SendCAN(CURRENT_TIME_BOX);
-		TOGGLELED0();
+		//TOGGLELED0();
 		Clock_Ticks.HeartBeat = 0;
 	}
 

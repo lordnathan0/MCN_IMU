@@ -27,6 +27,8 @@
 #include "Flash2803x_API_Library.h"
 #include "GPS.h"
 #include "i2c.h"
+#include "pwm_servo.h"
+#include "bb_serial.h"
 
 extern ops_struct ops;
 extern data_struct data;

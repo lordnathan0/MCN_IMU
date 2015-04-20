@@ -17,7 +17,7 @@ unsigned char fifoBuffer[128];
 extern const unsigned char dmpMemory[MPU6050_DMP_CODE_SIZE];
 extern const unsigned char dmpConfig[MPU6050_DMP_CONFIG_SIZE];
 extern const unsigned char dmpUpdates[MPU6050_DMP_UPDATES_SIZE];
-
+float PI = 3.1415926359;
 void Quaternion_getConjugate(Quaternion *q, Quaternion *ret)
 {
 	ret->x = -(q->x);
@@ -102,14 +102,21 @@ unsigned char dmpGetGravity(VectorFloat *v, Quaternion *q)
     return 0;
 }
 
-unsigned char dmpGetYawPitchRoll(float *d, Quaternion *q, VectorFloat *gravity)
+unsigned char dmpGetYawPitchRoll(canfloat *d, Quaternion *q)
 {
-    // yaw: (about Z axis)
-    d[0] = atan2(2*q -> x*q -> y - 2*q -> w*q -> z, 2*q -> w*q -> w + 2*q -> x*q -> x - 1);
-    // pitch: (nose up/down, about Y axis)
-    d[1] = atan(gravity -> x / sqrt(gravity -> y*gravity -> y + gravity -> z*gravity -> z));
-    // roll: (tilt left/right, about X axis)
-    d[2] = atan(gravity -> y / sqrt(gravity -> x*gravity -> x + gravity -> z*gravity -> z));
+//    // yaw: (about Z axis)
+//    d[0] = atan2(2*q -> x*q -> y - 2*q -> w*q -> z, 2*q -> w*q -> w + 2*q -> x*q -> x - 1);
+//    // pitch: (nose up/down, about Y axis)
+//    d[1] = atan(gravity -> x / sqrt(gravity -> y*gravity -> y + gravity -> z*gravity -> z));
+//    // roll: (tilt left/right, about X axis)
+//    d[2] = atan(gravity -> y / sqrt(gravity -> x*gravity -> x + gravity -> z*gravity -> z));
+
+   d[0].F32 = atan2(2.0f * (q -> x * q -> y + q -> w * q -> z), q -> w * q -> w + q -> x * q -> x - q -> y * q -> y - q -> z * q -> z);
+   d[1].F32 = -asin(2.0f * (q -> x * q -> z - q -> w * q -> y));
+   d[2].F32 = atan2(2.0f * (q -> w * q -> x + q -> y * q -> z), q -> w * q -> w - q -> x * q -> x - q -> y * q -> y + q -> z * q -> z);
+   d[1].F32 *= 180.0f / PI;
+   d[0].F32 *= 180.0f / PI;
+   d[2].F32 *= 180.0f / PI;
     return 0;
 }
 
@@ -184,8 +191,8 @@ unsigned char dmpInitialize()
 
             setDLPFMode(MPU6050_DLPF_BW_42);
 
-            setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
-            setFullScaleAccelRange(MPU6050_ACCEL_FS_16);
+//            setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
+//            setFullScaleAccelRange(MPU6050_ACCEL_FS_16);
 
 
             setDMPConfig1(0x03);
@@ -193,9 +200,9 @@ unsigned char dmpInitialize()
 
             setOTPBankValid(false);
 
-            setXGyroOffset(xgOffsetTC);
-            setYGyroOffset(ygOffsetTC);
-            setZGyroOffset(zgOffsetTC);
+//            setXGyroOffset(xgOffsetTC);
+//            setYGyroOffset(ygOffsetTC);
+//            setZGyroOffset(zgOffsetTC);
 
             unsigned char dmpUpdate[16], j;
             unsigned int pos = 0;

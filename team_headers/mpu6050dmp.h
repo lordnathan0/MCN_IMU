@@ -9,28 +9,7 @@
 #define MPU6050DMP_H_
 
 #include <string.h>
-
-typedef struct QUATERNION
-{
-    float w;
-    float x;
-    float y;
-    float z;
-}Quaternion;
-
-typedef struct VECTORFLOAT
-{
-    float x;
-    float y;
-    float z;
-}VectorFloat;
-
-typedef struct VECTORINT16
-{
-    int x;
-    int y;
-    int z;
-}VectorInt16;
+#include "data.h"
 
 void Quaternion_getConjugate(Quaternion *q, Quaternion *ret);
 void Quaternion_getProduct(Quaternion *q1, Quaternion *q2,Quaternion *ret );
@@ -41,7 +20,7 @@ unsigned char dmpGetAccel(VectorInt16 *v, const unsigned char* packet);
 unsigned char dmpGetGravity(VectorFloat *v, Quaternion *q);
 unsigned char int_dmpGetQuaternion(int *d, const unsigned char* packet);
 unsigned char dmpGetQuaternion(Quaternion *q, const unsigned char* packet);
-unsigned char dmpGetYawPitchRoll(float *d, Quaternion *q, VectorFloat *gravity);
+unsigned char dmpGetYawPitchRoll(canfloat *d, Quaternion *q);
 unsigned char dmpInitialize();
 
 #define strcpy_P(dest, src) strcpy((dest), (src))
