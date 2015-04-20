@@ -110,10 +110,10 @@ int nmea_pack_type(const char *buff, int buff_sz)
         return GPNON;
     else if(0 == memcmp(buff, pheads[0], 6))
         return GPGGA;
-    else if(0 == memcmp(buff, pheads[1], 6))
-        return GPGSA;
-    else if(0 == memcmp(buff, pheads[2], 6))
-        return GPGSV;
+//    else if(0 == memcmp(buff, pheads[1], 6))
+//        return GPGSA;
+//    else if(0 == memcmp(buff, pheads[2], 6))
+//        return GPGSV;
     else if(0 == memcmp(buff, pheads[3], 6))
         return GPRMC;
     else if(0 == memcmp(buff, pheads[4], 6))

@@ -103,6 +103,7 @@ void StartUp()
 void Restart()
 {
 	EALLOW;
+	SysCtrlRegs.SCSR = 0;
 	SysCtrlRegs.WDCR = 0x0028;               // Enable watchdog module
 	SysCtrlRegs.WDKEY = 0x00;                // wrong key should restart
 	SysCtrlRegs.WDKEY = 0x00;

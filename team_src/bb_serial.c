@@ -14,7 +14,7 @@ extern void DSP28x_usDelay(Uint32 Count);
 void ConfigTX()
 {
 	EALLOW;
-	CLEARLED1();
+	SETTX();
 	GpioCtrlRegs.GPAMUX1.bit.GPIO1 = 0;         // GPIO
 	GpioCtrlRegs.GPADIR.bit.GPIO1 = 1;          // output
 	GpioCtrlRegs.GPAQSEL1.bit.GPIO1 = 0;        //Synch to SYSCLKOUT only
@@ -52,7 +52,6 @@ void bb_setup()
 {
 	ConfigTX();
 	ConfigRX();
-	SETTX();
 }
 
 void bb_send_char(char c)
@@ -85,7 +84,7 @@ char bb_read_char()
 	char c;
 	c = 0;
 	char b;
-	DELAY_US(BB_SER_DELAY_US/4);
+	DELAY_US(BB_SER_DELAY_US/8);
 	for (i=0; i<8; i++ )
 	{
 
@@ -95,7 +94,7 @@ char bb_read_char()
 		c = c | b;
 		CLEARTX();
 	}
-	DELAY_US(BB_SER_DELAY_US);
+	//DELAY_US(BB_SER_DELAY_US);
 	SETTX();
 	return c;
 }
@@ -110,12 +109,14 @@ __interrupt void  XINT1_ISR(void)
 		GPS.startflag = 1;
 		GPS.gps[0] = c;
 		GPS.length = 1;
+		SETLED1();
 	}
 	else if(c == '\n' && GPS.startflag)		// end of sentence parse and restart
 	{
 		GPS_Choose();
 		StopWatchRestart(ops.GPS_stopwatch);
 		GPS.startflag = 0;
+		CLEARLED1();
 	}
 	else if(GPS.startflag)				//keep storing until end of sentence
 	{
@@ -126,5 +127,4 @@ __interrupt void  XINT1_ISR(void)
 
 	PieCtrlRegs.PIEIFR1.bit.INTx4 = 0; //clear flag
 	PieCtrlRegs.PIEACK.all = PIEACK_GROUP1;
-
 }

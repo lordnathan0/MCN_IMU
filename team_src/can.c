@@ -421,15 +421,15 @@ void SendCAN(unsigned int Mbox)
 void FillCANData()
 {
 	//todo USER: use FillCAN to put data into correct mailboxes
-//	FillCAN(CURRENT_TIME_BOX);
-//	FillCAN(ALT_ACCR_BOX);
-//	FillCAN(LAT_VAL_BOX	);
-//	FillCAN(LONG_BOX);
+	FillCAN(CURRENT_TIME_BOX);
+	FillCAN(ALT_ACCR_BOX);
+	FillCAN(LAT_VAL_BOX	);
+	FillCAN(LONG_BOX);
 	FillCAN(XAxisIMU_BOX);
 	FillCAN(YAxisIMU_BOX);
 	FillCAN(ZAxisIMU_BOX);
 	FillCAN(10);
-//	FillCAN(GPS_SPEED_BOX);
+	FillCAN(GPS_SPEED_BOX);
 }
 
 // INT9.6

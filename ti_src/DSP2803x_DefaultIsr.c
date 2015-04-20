@@ -278,19 +278,7 @@ __interrupt void  ADCINT9_ISR(void)     // ADC
 }
 
 
-// INT1.8
-__interrupt void  WAKEINT_ISR(void)    // WD, LOW Power
-{
-  // Insert ISR Code here
 
-  // To receive more interrupts from this PIE group, acknowledge this interrupt
-  // PieCtrlRegs.PIEACK.all = PIEACK_GROUP1;
-
-  // Next two lines for debug only to halt the processor here
-  // Remove after inserting ISR Code
-  __asm ("      ESTOP0");
-  for(;;);
-}
 
 // -----------------------------------------------------------
 // PIE Group 2 - MUXed into CPU INT2

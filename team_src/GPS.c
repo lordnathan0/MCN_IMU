@@ -80,20 +80,32 @@ void GPS_Choose()
 	switch(nmea_pack_type((const char *)GPS.gps,GPS.length))
 	{
 	case GPGGA:
-		memcpy(GPS.gps_sentence[0],GPS.gps, sizeof(char)*GPS.length);
-		GPS.gps_complete[0] = 1;
+		if (GPS.gps_complete[0] == 0)
+		{
+			memcpy(GPS.gps_sentence[0],GPS.gps, sizeof(char)*GPS.length);
+			GPS.sentence_length[0] = GPS.length;
+			GPS.gps_complete[0] = 1;
+		}
 		break;
 	case GPGSA:
 		break;
 	case GPGSV:
 		break;
-	case GPRMC: //not useful data
-		memcpy(GPS.gps_sentence[1],GPS.gps, sizeof(char)*GPS.length);
-		GPS.gps_complete[1] = 1;
+	case GPRMC:
+		if (GPS.gps_complete[1] == 0)
+		{
+			memcpy(GPS.gps_sentence[1],GPS.gps, sizeof(char)*GPS.length);
+			GPS.sentence_length[1] = GPS.length;
+			GPS.gps_complete[1] = 1;
+		}
 		break;
 	case GPVTG:
-		memcpy(GPS.gps_sentence[2],GPS.gps, sizeof(char)*GPS.length);
-		GPS.gps_complete[2] = 1;
+		if (GPS.gps_complete[2] == 0)
+		{
+			memcpy(GPS.gps_sentence[2],GPS.gps, sizeof(char)*GPS.length);
+			GPS.sentence_length[2] = GPS.length;
+			GPS.gps_complete[2] = 1;
+		}
 		break;
 	default:
 		break;
@@ -109,24 +121,34 @@ void GPS_parse()
 			switch(nmea_pack_type((const char *)GPS.gps_sentence[i],GPS.sentence_length[i]))
 			{
 			case GPGGA:
-				nmea_parse_GPGGA((const char *)GPS.gps_sentence[i],GPS.sentence_length[i], &gga);
-				nmea_GPGGA2info(&gga, &GPS.gps_info);
+				if(nmea_parse_GPGGA((const char *)GPS.gps_sentence[i],GPS.sentence_length[i], &gga))
+				{
+					nmea_GPGGA2info(&gga, &GPS.gps_info);
+				}
 				break;
 			case GPGSA:
-				nmea_parse_GPGSA((const char *)GPS.gps_sentence[i],GPS.sentence_length[i], &gsa);
-				nmea_GPGSA2info(&gsa, &GPS.gps_info);
+				if(nmea_parse_GPGSA((const char *)GPS.gps_sentence[i],GPS.sentence_length[i], &gsa))
+				{
+					nmea_GPGSA2info(&gsa, &GPS.gps_info);
+				}
 				break;
 			case GPGSV:
-				nmea_parse_GPGSV((const char *)GPS.gps_sentence[i],GPS.sentence_length[i],  &gsv);
-				nmea_GPGSV2info(&gsv, &GPS.gps_info);
+				if(nmea_parse_GPGSV((const char *)GPS.gps_sentence[i],GPS.sentence_length[i],  &gsv))
+				{
+					nmea_GPGSV2info(&gsv, &GPS.gps_info);
+				}
 				break;
 			case GPRMC: //not useful data
-				nmea_parse_GPRMC((const char *)GPS.gps_sentence[i],GPS.sentence_length[i],  &rmc);
-				nmea_GPRMC2info(&rmc, &GPS.gps_info);
+				if(nmea_parse_GPRMC((const char *)GPS.gps_sentence[i],GPS.sentence_length[i],  &rmc))
+				{
+					nmea_GPRMC2info(&rmc, &GPS.gps_info);
+				}
 				break;
 			case GPVTG:
-				nmea_parse_GPVTG((const char *)GPS.gps_sentence[i],GPS.sentence_length[i],  &vtg);
-				nmea_GPVTG2info(&vtg, &GPS.gps_info);
+				if(nmea_parse_GPVTG((const char *)GPS.gps_sentence[i],GPS.sentence_length[i],  &vtg))
+				{
+					nmea_GPVTG2info(&vtg, &GPS.gps_info);
+				}
 				break;
 			default:
 				break;

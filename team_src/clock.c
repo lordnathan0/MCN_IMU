@@ -76,7 +76,7 @@ __interrupt void INT13_ISR(void)     // INT13 or CPU-Timer1
 		//BUS_OFF();
 		HeartBeat();
 		SendCAN(CURRENT_TIME_BOX);
-		TOGGLELED0();
+		//TOGGLELED0();
 		Clock_Ticks.HeartBeat = 0;
 	}
 

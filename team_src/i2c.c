@@ -14,8 +14,8 @@ void I2CA_Init(void)
    // Initialize I2C
 
    I2caRegs.I2CPSC.all = 10;		    // Prescaler - need 7-12 Mhz on module clk
-   I2caRegs.I2CCLKL = 15;			// NOTE: must be non zero
-   I2caRegs.I2CCLKH = 10;			// NOTE: must be non zero
+   I2caRegs.I2CCLKL = 4;			// NOTE: must be non zero
+   I2caRegs.I2CCLKH = 4;			// NOTE: must be non zero
    I2caRegs.I2CIER.all = 0;			// Disable SCD & ARDY interrupts
 
    I2caRegs.I2CMDR.all = 0x0420;	// Take I2C out of reset
@@ -92,8 +92,7 @@ char I2C_readBytes(unsigned char devAddr, unsigned char regAddr, unsigned int le
 	// Clearing of this bit by the module is delayed until after the SCD bit is
 	// set. If this bit is not checked prior to initiating a new message, the
 	// I2C could get confused.
-
-	DINT;
+	int k;
 
 	if (length == 0)
 	{
@@ -112,6 +111,8 @@ char I2C_readBytes(unsigned char devAddr, unsigned char regAddr, unsigned int le
 		I2caRegs.I2CMDR.bit.IRS = 1;
 	}
 
+
+
 	I2caRegs.I2CMDR.bit.MST = 1;
 	I2caRegs.I2CMDR.bit.TRX = 1; //Transmit mode
 	I2caRegs.I2CMDR.bit.RM = 1;	// repeat
@@ -129,37 +130,63 @@ char I2C_readBytes(unsigned char devAddr, unsigned char regAddr, unsigned int le
 
 	I2caRegs.I2CMDR.bit.TRX = 0; //Receiver mode
 	I2caRegs.I2CMDR.bit.STT = 1;//start condition
-
+	DINT;
 	while(I2caRegs.I2CMDR.bit.STT != 0) {} // Detect a start
 
 	I2caRegs.I2CMDR.bit.RM = 0;	// repeat off
+
 	I2caRegs.I2CCNT = length; //this will do an nack when 0
+
 
 	for (i=0; i <length; i++)
 	{
+
 		if(I2caRegs.I2CSTR.bit.NACK != 0)
 		{
 			i = length;
 		}
 		else
 		{
-			while (I2caRegs.I2CSTR.bit.RRDY != 1) {}
+			k = 0;
+			while (I2caRegs.I2CSTR.bit.RRDY != 1 | I2caRegs.I2CSTR.bit.NACK != 0 )
+			{
+				if (k > 1000)
+				{
+					Restart();
+				}
+				k++;
+			}
+			EINT;
 			d[i] = I2caRegs.I2CDRR;
+			DINT;
 		}
 	}
 
+
+	EINT;
 	while(I2caRegs.I2CSTR.bit.NACK != 0); // Detect NACK
+
 	I2caRegs.I2CSTR.bit.NACK = 1;
 
 	I2caRegs.I2CMDR.bit.STP = 1;		//stop condition
 
-	while (I2caRegs.I2CMDR.bit.STP != 0) {}
+	k = 0;
+	while (I2caRegs.I2CMDR.bit.STP != 0)
+	{
+		if (k > 1000)
+		{
+			Restart();
+		}
+		k++;
+	}
 	while(I2caRegs.I2CSTR.bit.SCD != 1) {}
+
 	I2caRegs.I2CSTR.bit.SCD = 1; // Clear stop condition
+
 
 	I2caRegs.I2CMDR.bit.RM = 0;	// NO repeat
 
-	EINT;
+
 	return i;
 }
 
