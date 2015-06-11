@@ -8,11 +8,11 @@
 #ifndef BB_SERIAL_H_
 #define BB_SERIAL_H_
 
-#define 	CLEARTX()			GpioDataRegs.GPACLEAR.bit.GPIO1 = 1
-#define		SETTX()				GpioDataRegs.GPASET.bit.GPIO1 = 1
-#define 	TOGGLETX()			GpioDataRegs.GPATOGGLE.bit.GPIO1 = 1
+#define 	CLEARTX()			GpioDataRegs.GPACLEAR.bit.GPIO11 = 1
+#define		SETTX()				GpioDataRegs.GPASET.bit.GPIO11 = 1
+#define 	TOGGLETX()			GpioDataRegs.GPATOGGLE.bit.GPIO11 = 1
 
-#define		READRX()			GpioDataRegs.GPADAT.bit.GPIO3
+#define		READRX()			GpioDataRegs.GPADAT.bit.GPIO9
 
 #define UART_SOFT_BAUD 9600UL
 

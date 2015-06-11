@@ -133,9 +133,9 @@ void SensorCovMeasure()
 //
 //	set_pwm(s1.F32, s2);
 
-	SETLED0();
+//	SETLED0();
 	MPU_cov();
-	CLEARLED0();
+//	CLEARLED0();
 
 	StopWatchRestart(conv_timer);
 
@@ -214,10 +214,24 @@ void MPU_cov()
 
 void MPU_setup()
 {
+
+
 	I2CA_Init();
 
 	devAddr = MPU6050_DEFAULT_ADDRESS;
 
+	EALLOW;
+	MPUPOWER_OFF;
+	GpioCtrlRegs.GPAMUX1.bit.GPIO5 = 0;         // GPIO
+	GpioCtrlRegs.GPADIR.bit.GPIO5 = 1;          // output
+	GpioCtrlRegs.GPAQSEL1.bit.GPIO5 = 0;        //Synch to SYSCLKOUT only
+	GpioCtrlRegs.GPAPUD.bit.GPIO5 = 1; 		//disable pull up
+	MPUPOWER_OFF;
+	EDIS;
+
+	DELAY_US(10000);
+
+	MPUPOWER_ON;
 	mpu_reset();
 	int id = getDeviceID();
 	setSleepEnabled(false);

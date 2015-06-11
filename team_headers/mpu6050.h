@@ -8,6 +8,9 @@
 #ifndef MPU6050_H_
 #define MPU6050_H_
 
+#define MPUPOWER_ON 	GpioDataRegs.GPACLEAR.bit.GPIO5 = 1
+#define MPUPOWER_OFF	GpioDataRegs.GPASET.bit.GPIO5 = 1
+
 unsigned char getDeviceID();
 void switchSPIEnabled(char enabled);
 void getMotion6(int* ax, int* ay, int* az, int* gx, int* gy, int* gz);

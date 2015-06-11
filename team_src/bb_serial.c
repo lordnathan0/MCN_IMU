@@ -15,25 +15,25 @@ void ConfigTX()
 {
 	EALLOW;
 	SETTX();
-	GpioCtrlRegs.GPAMUX1.bit.GPIO1 = 0;         // GPIO
-	GpioCtrlRegs.GPADIR.bit.GPIO1 = 1;          // output
-	GpioCtrlRegs.GPAQSEL1.bit.GPIO1 = 0;        //Synch to SYSCLKOUT only
-	GpioCtrlRegs.GPAPUD.bit.GPIO1 = 1; 		//disable pull up
+	GpioCtrlRegs.GPAMUX1.bit.GPIO11 = 0;         // GPIO
+	GpioCtrlRegs.GPADIR.bit.GPIO11 = 1;          // output
+	GpioCtrlRegs.GPAQSEL1.bit.GPIO11 = 0;        //Synch to SYSCLKOUT only
+	GpioCtrlRegs.GPAPUD.bit.GPIO11 = 1; 		//disable pull up
 	EDIS;
 }
 
 void ConfigRX()
 {
 	   EALLOW;
-	   GpioCtrlRegs.GPAMUX1.bit.GPIO3 = 0;         // GPIO
-	   GpioCtrlRegs.GPADIR.bit.GPIO3 = 0;          // input
-	   GpioCtrlRegs.GPAQSEL1.bit.GPIO3 = 2;        // XINT1 Synch to SYSCLKOUT only
-	   GpioCtrlRegs.GPAPUD.bit.GPIO3 = 1; 			//disable pull up
+	   GpioCtrlRegs.GPAMUX1.bit.GPIO9 = 0;         // GPIO
+	   GpioCtrlRegs.GPADIR.bit.GPIO9 = 0;          // input
+	   GpioCtrlRegs.GPAQSEL1.bit.GPIO9 = 2;        // XINT1 Synch to SYSCLKOUT only
+	   GpioCtrlRegs.GPAPUD.bit.GPIO9 = 1; 			//disable pull up
 	   EDIS;
 
 	// GPIO3 is XINT1
 	   EALLOW;
-	   GpioIntRegs.GPIOXINT1SEL.bit.GPIOSEL = 3;   // XINT1 is GPIO3
+	   GpioIntRegs.GPIOXINT1SEL.bit.GPIOSEL = 9;   // XINT1 is GPIO11
 	   EDIS;
 
 	// Configure XINT1
