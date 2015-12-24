@@ -84,7 +84,7 @@ void SensorCovInit()
 	s2 = 0.5;
 	sicr = .0015;
 
-	MPU_setup();
+	//MPU_setup();
 	GPS_setup();
 
 
@@ -134,7 +134,7 @@ void SensorCovMeasure()
 //	set_pwm(s1.F32, s2);
 
 //	SETLED0();
-	MPU_cov();
+	//MPU_cov();
 //	CLEARLED0();
 
 	StopWatchRestart(conv_timer);
